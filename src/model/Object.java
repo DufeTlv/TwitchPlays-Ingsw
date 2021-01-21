@@ -8,11 +8,12 @@ import java.io.IOException;
 
 import javax.swing.ImageIcon;
 
-public class Object {
+public class Object extends Rectangle{
 	
-	protected int x, y, width, height;
+	//protected int x, y, width, height;
 	protected boolean visible;
 	protected Image image;
+	//protected Rectangle bounds;
 	
 	public Object(int _x, int _y, String filePath) {
 		x = _x;
@@ -39,20 +40,20 @@ public class Object {
 			g.drawImage(image, x, y, null);
 	}
 	
-	public void setPosition(int _x, int _y) {
+	/*public void setPosition(int _x, int _y) {
 		x = _x;
-		y = _y;
-	}
+		y = _y;		
+	}*/
 	
-	public Rectangle getBounds() {
+	/*public Rectangle getBounds() {
 		return new Rectangle(x, y, width, height);
-	}
+	}*/
 	
-	public int getCenterX() {
+	public int getCentralX() {
 		return x+(width/2);
 	}
 	
-	public int getCenterY() {
+	public int getCentralY() {
 		return y+(height/2);
 	}
 	

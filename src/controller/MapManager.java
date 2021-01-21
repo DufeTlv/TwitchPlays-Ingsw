@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Random;
 
 import model.Room;
+import model.Object;
 
 public class MapManager {
 	
@@ -22,6 +23,10 @@ public class MapManager {
 		populateMap();
 	}
 	
+	public Room getCurrentRoom() {
+		return rooms.get(currentRoom);
+	}
+	
 	public Rectangle getCurrentRoomFloor() {
 		return rooms.get(currentRoom).getFloor();
 	}
@@ -31,6 +36,8 @@ public class MapManager {
 		rooms.get(currentRoom).drawRoom(g2d);
 		for(Room r: rooms)
 			r.draw(g2d);
+		for(Object b: bridges)
+			b.draw(g2d);
 	}
 	
 	public void changeState(int state) {
@@ -42,7 +49,7 @@ public class MapManager {
 		currentRoom = 0;
 		
 		// genera un numero randomico di stanze da creare compreso tra 5 e 7
-		int nRooms = 1;//new Random().nextInt(2)+5;
+		int nRooms = 5;//new Random().nextInt(2)+5;
 		
 		// partendo dalla prima stanza inserisce delle stanze addiacenti e dei ponti per raggiungerle
 		while(nRooms > 0) {
@@ -54,46 +61,73 @@ public class MapManager {
 				dir[0] = dir[1] = dir[2] = dir[3] = true;
 				
 				// controlla se sono presenti stanze nei dintorni di quella attuale
+				
+				// prendo le collisioni della stanza attuale
+				Rectangle floor = rooms.get(r).getFloor();
+				
 				for(Room room: rooms) {
-					Rectangle rect = rooms.get(r).getFloor();
-					
-					if(room.getFloor().x == rect.x && room.getFloor().y == rect.y-rect.height-16*3) //up
+					if(room.getFloor().x == floor.x && room.getFloor().y == floor.y-floor.height-48*3) //up
 						dir[0] = false;
-					if(room.getFloor().x == rect.x+rect.width+16*3 && room.getFloor().y == rect.y) // right
+					if(room.getFloor().x == floor.x+floor.width+48*3 && room.getFloor().y == floor.y) // right
 						dir[1] = false;
-					if(room.getFloor().x == rect.x && room.getFloor().y == rect.y+rect.height+16*3) // down
+					if(room.getFloor().x == floor.x && room.getFloor().y == floor.y+floor.height+48*3) // down
 						dir[2] = false;
-					if(room.getFloor().x == rect.x-rect.width-16*3 && room.getFloor().y == rect.y) // left
+					if(room.getFloor().x == floor.x-floor.width-48*3 && room.getFloor().y == floor.y) // left
 						dir[3] = false;
+					
 				}
 				
-				
-				/* per ogni direzione, se lo spazio è libero, decide randomicamente se creare una stanza */
-				if(dir[0]) {	// up
-					Room roomToAdd = new Room(rooms.get(0).getFloor().x, rooms.get(0).getFloor().y-rooms.get(0).getFloor().height-16*3);
-					roomToAdd.setBridge(0, 0);
+				/* per ogni direzione, se lo spazio è libero, decide randomicamente se creare una stanza 
+				 * edit : deve controllare se ha gia creato il numero necessario di stanze */
+				if(dir[0] && nRooms>0) {	// up
+					Room roomToAdd = new Room(floor.x, floor.y-floor.height-48*3);
 					rooms.add(roomToAdd);
+					
+					Object bridge = new Object((int)floor.getCenterX()-8*3, floor.y-48*3, "gameAssets/sprites/verticalBridge.png");
+					bridges.add(bridge);
+					
+					Rectangle bBounds = bridge.getBounds();
+					rooms.get(r).setBridge(0, bBounds);
+					roomToAdd.setBridge(2, bBounds);
 					
 					--nRooms;
 				}
-				if(dir[1] && new Random().nextBoolean()) {	// right
-					Room roomToAdd = new Room(rooms.get(0).getFloor().x+rooms.get(0).getFloor().width+16*3, rooms.get(0).getFloor().y);
-					roomToAdd.setBridge(0, 0);
+				if(dir[1] && nRooms>0 &&  new Random().nextBoolean()) {	// right
+					Room roomToAdd = new Room(floor.x+floor.width+48*3, floor.y);
 					rooms.add(roomToAdd);
 					
-					--nRooms;				
+					Object bridge = new Object(floor.x+floor.width, (int)floor.getCenterY()-8*3, "gameAssets/sprites/horizontalBridge.png");
+					bridges.add(bridge);
+					
+					Rectangle bBounds = bridge.getBounds();
+					rooms.get(r).setBridge(1, bBounds);
+					roomToAdd.setBridge(3, bBounds);
+					
+					--nRooms;		
 				}
-				if(dir[2] && new Random().nextBoolean()) {	// down
-					Room roomToAdd = new Room(rooms.get(0).getFloor().x, rooms.get(0).getFloor().y+rooms.get(0).getFloor().height+16*3);
-					roomToAdd.setBridge(0, 0);
+				if(dir[2] && nRooms>0 && new Random().nextBoolean()) {	// down
+					Room roomToAdd = new Room(floor.x, floor.y+floor.height+48*3);
 					rooms.add(roomToAdd);
+					
+					Object bridge = new Object((int)floor.getCenterX()-8*3, floor.y+floor.height, "gameAssets/sprites/verticalBridge.png");
+					bridges.add(bridge);
+					
+					Rectangle bBounds = bridge.getBounds();
+					rooms.get(r).setBridge(2, bBounds);
+					roomToAdd.setBridge(0, bBounds);
 					
 					--nRooms;
 				}
-				if(dir[3] && new Random().nextBoolean()) {	// left
-					Room roomToAdd = new Room(rooms.get(0).getFloor().x-rooms.get(0).getFloor().width-16*3, rooms.get(0).getFloor().y);
-					roomToAdd.setBridge(0, 0);
+				if(dir[3] && nRooms>0 && new Random().nextBoolean()) {	// left
+					Room roomToAdd = new Room(floor.x-floor.width-48*3, floor.y);
 					rooms.add(roomToAdd);
+					
+					Object bridge = new Object(floor.x-48*3, (int)floor.getCenterY()-8*3, "gameAssets/sprites/horizontalBridge.png");
+					bridges.add(bridge);
+					
+					Rectangle bBounds = bridge.getBounds();
+					rooms.get(r).setBridge(3, bBounds);
+					roomToAdd.setBridge(1, bBounds);
 					
 					--nRooms;
 				}
@@ -101,15 +135,6 @@ public class MapManager {
 			}
 			
 		}
-		
-		/*Room roomToAdd = new Room(rooms.get(0).getFloor().x, rooms.get(0).getFloor().y-rooms.get(0).getFloor().height-16*3);
-		roomToAdd.setBridge(0, 0);
-		rooms.add(roomToAdd);*/
-		
-		// a quelle stanze aggiungere altre stanze se in quella direzione non è gia presente una stanza
-		// in tal caso decidere se aggiungere o meno un ponte
-		
-		// ad ogni stanza creata decrementare il numero randomico generato
 		
 	}
 

@@ -7,20 +7,50 @@ import java.util.Random;
 
 public class Room{
 	
-	private Rectangle floor; 					// contorni della stanza
+	private Rectangle floor, bridges[]; 		// collisioni e ponti della stanza
 	private ArrayList<AnimatedObject> tiles;	// pavimentazione
-	private int bridges[];						
+	private boolean visited;
 	
 	public Room(int _x, int _y) {
 		
 		floor = new Rectangle(_x, _y, 256*3, 160*3);
 		tiles = new ArrayList<>();
+		bridges = new Rectangle[4];
+		bridges[0] = bridges[1] = bridges[2] = bridges[3] = null;
 		
-		bridges = new int[4];
-		bridges[0] = bridges[1] = bridges[2] = bridges[3] = -1;
+		visited = false;
 		
 		generateTiles();
 		
+	}
+	
+	public int getUpperSide() {
+		return floor.y;
+	}
+	public int getBottomSide() {
+		return floor.y+floor.height;
+	}
+	public int getLeftSide() {
+		return floor.x;
+	}
+	public int getRightSide() {
+		return floor.x+floor.width;
+	}
+	
+	public Rectangle[] getBridges() {
+		return bridges;
+	}
+	
+	public void setVisited(boolean v) {
+		visited = v;
+	}
+	
+	public void setBridge(int i, Rectangle b) {
+		bridges[i] = b;
+	}
+	
+	public Rectangle getBridge(int i) {
+		return bridges[i];
 	}
 	
 	public void changeWaterState(int state) {
@@ -47,10 +77,6 @@ public class Room{
 			}
 		}
 		
-	}
-
-	public void setBridge(int n, int room) {
-		bridges[n] = room;
 	}
 	
 	public Rectangle getFloor() {

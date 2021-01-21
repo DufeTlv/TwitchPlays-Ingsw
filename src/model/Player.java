@@ -7,9 +7,9 @@ import java.awt.event.KeyEvent;
 public class Player extends AnimatedObject{
 	
 	private int speedX, speedY;
-	private int pixelW, pixelH;
 	private boolean right, left, up, down;
-	private Rectangle feet, currentFloor;
+	private Rectangle feet;
+	private Room currentRoom;
 	
 	private int health, ammo;
 
@@ -19,8 +19,6 @@ public class Player extends AnimatedObject{
 		addAnimation(0, 3, 200, true);  // idle
 		addAnimation(4, 11, 100, true); // walk
 		
-		pixelW = (width/17);
-		pixelH = (height/20);
 		
 		feet = new Rectangle(_x+((width/17)*4), _y+((height/20)*18), ((width/17)*9), ((height/20)*3));
 		
@@ -29,10 +27,20 @@ public class Player extends AnimatedObject{
 		speedX = 2*2;
 		speedY = 1*2;
 		
+		health = 100;
+		
 	}
 	
-	public void setCurrentFloor(Rectangle floor) {
-		currentFloor = floor;
+	public int getHealth() {
+		return health;
+	}
+	
+	public void damage(int d) {
+		health -= d;
+	}
+	
+	public void setCurrentRoom(Room r) {
+		currentRoom = r;
 	}
 	
 	@Override
@@ -55,30 +63,38 @@ public class Player extends AnimatedObject{
 		
 		if(!right && !left && !up && !down) changeAnimation(0);
 		
-		feet.x = x+(pixelW*4);
-		feet.y = y+(pixelH*18);
+		feet.x = x+((width/17)*4);
+		feet.y = y+((height/20)*18);
 	}
 	
 	public boolean rightCollision() {
-		if( (feet.x+feet.width)+speedX > currentFloor.x+currentFloor.width)
-			return true;
-		return false;
+		//Rectangle bU = currentRoom.getBridge(0);
+		//Rectangle bR = currentRoom.getBridge(1);
+		//Rectangle bD = currentRoom.getBridge(2);
+		
+		//int collisionSide = ()? : ; 
+		
+		return ( (feet.x+feet.width)+speedX > currentRoom.getRightSide() );
+		
 	}
 	
 	public boolean leftCollition() {
-		if(feet.x - speedX < currentFloor.x)
+		Rectangle b = currentRoom.getBridge(3);
+		
+		if(feet.x - speedX < currentRoom.getLeftSide()&& 
+				(b == null || !(b != null && (feet.y >= b.y) && (feet.y+feet.height <= b.y+b.height))) )
 			return true;
 		return false;
 	}
 	
 	public boolean upCollition() {
-		if( feet.y - speedY < currentFloor.y)
+		if( feet.y - speedY < currentRoom.getUpperSide())
 			return true;
 		return false;
 	}
 	
 	public boolean downCollition() {
-		if( feet.y+feet.height + speedY > currentFloor.y + currentFloor.height)
+		if( feet.y+feet.height + speedY > currentRoom.getBottomSide() )
 			return true;
 		return false;
 	}

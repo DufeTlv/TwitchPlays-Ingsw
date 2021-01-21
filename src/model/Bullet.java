@@ -32,8 +32,10 @@ public class Bullet extends Object{
 		position[0] += directions[0]*velocity;
 		position[1] += directions[1]*velocity;
 		
-		x = (int)position[0]-(width/2);
-		y = (int)position[1]-(height/2);
+		//x = (int)position[0]-(width/2);
+		//y = (int)position[1]-(height/2);
+		
+		setLocation((int)position[0]-(width/2), (int)position[1]-(height/2));
 	}
 
 }
