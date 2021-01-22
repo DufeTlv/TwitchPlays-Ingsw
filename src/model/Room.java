@@ -86,12 +86,20 @@ public class Room{
 	/* metodo di stampa momentano per vedere i contorni della stanza */
 	public void drawRoom(Graphics2D g2d) {
 		g2d.drawRect(floor.x, floor.y, floor.width, floor.height);
+		
+		if(bridges[0] != null) g2d.drawRect(bridges[0].x, bridges[0].y, bridges[0].width, bridges[0].height);
+		if(bridges[1] != null) g2d.drawRect(bridges[1].x, bridges[1].y, bridges[1].width, bridges[1].height);
+		if(bridges[2] != null) g2d.drawRect(bridges[2].x, bridges[2].y, bridges[2].width, bridges[2].height);
+		if(bridges[3] != null) g2d.drawRect(bridges[3].x, bridges[3].y, bridges[3].width, bridges[3].height);
+		
 	}
 	
 	public void draw(Graphics2D g2d) {
 		for(AnimatedObject o: tiles) {
 			o.draw(g2d);
 		}
+		
+		drawRoom(g2d);
 	}
 	
 

@@ -87,7 +87,7 @@ public abstract class Enemy extends AnimatedObject{
 				break;
 				
 			case 3: // shoot
-				shootLogic();
+				//shootLogic();
 				break;
 				
 			case 4: // death

@@ -87,12 +87,14 @@ public class MapManager {
 					bridges.add(bridge);
 					
 					Rectangle bBounds = bridge.getBounds();
+					//bBounds.height += (bBounds.height/48)*18;
+					//bBounds.y -= (bBounds.height/48)*9;
 					rooms.get(r).setBridge(0, bBounds);
 					roomToAdd.setBridge(2, bBounds);
 					
 					--nRooms;
 				}
-				if(dir[1] && nRooms>0 &&  new Random().nextBoolean()) {	// right
+				if(dir[1] && nRooms>0 /*&&  new Random().nextBoolean()*/) {	// right
 					Room roomToAdd = new Room(floor.x+floor.width+48*3, floor.y);
 					rooms.add(roomToAdd);
 					
