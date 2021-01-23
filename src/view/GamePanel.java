@@ -122,9 +122,15 @@ public class GamePanel extends JLayeredPane implements ActionListener, Runnable{
 				
 				player.update();
 				
+				mapManager.getCurrentRoom().update();
 				bulletManager.update(mapManager.getCurrentRoomFloor(), enemyManager.getEnemies(), player);
 				enemyManager.update(mapManager.getCurrentRoomFloor());
-				//mapManager.update();
+				
+				//mapManager.getCurrentRoom().setVisited(enemyManager.roomClear());
+				if(enemyManager.roomClear()) {
+					mapManager.setCurrentRoomIndex(player.getFeet());
+					player.setCurrentRoom(mapManager.getCurrentRoom());
+				}
 				
 				/* aggiornamento della posizione del cursore */
 				Point p = MouseInfo.getPointerInfo().getLocation();
@@ -132,8 +138,10 @@ public class GamePanel extends JLayeredPane implements ActionListener, Runnable{
 				cursor.setLocation( camX+(p.x-(cursor.getBounds().width/2)), camY+(p.y-(cursor.getBounds().height/2)));
 				
 				/* aggiornamento posizione camera/inquadratura */
-				camX = (player.getCentralX()+cursor.getCentralX())/2 - GameSettings.getInstance().getWRes()/2;
-				camY = (player.getCentralY()+cursor.getCentralY())/2 - GameSettings.getInstance().getHRes()/2;
+				//camX = (player.getCentralX()+cursor.getCentralX())/2 - GameSettings.getInstance().getWRes()/2;
+				//camY = (player.getCentralY()+cursor.getCentralY())/2 - GameSettings.getInstance().getHRes()/2;
+				camX = (player.getCentralX() - GameSettings.getInstance().getWRes()/2 );
+				camY = (player.getCentralY() - GameSettings.getInstance().getHRes()/2);
 				
 				hud.update(camX, camY, player.getHealth());
 				
@@ -155,6 +163,7 @@ public class GamePanel extends JLayeredPane implements ActionListener, Runnable{
 		@Override
 		public void keyPressed(KeyEvent e) {
 			player.processPressEvent(e);
+			
 			if(e.getKeyCode() == KeyEvent.VK_V)
 				mapManager.changeState(1);
 			if(e.getKeyCode() == KeyEvent.VK_B)

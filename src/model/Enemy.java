@@ -23,7 +23,7 @@ public abstract class Enemy extends AnimatedObject{
 		
 		addAnimation(0, 3, 200, true);  	// idle
 		addAnimation(4, 11, 100, true); 	// walk
-		//addAnimation(12, 15, 100, false);	// death
+		addAnimation(12, 15, 100, false);	// death
 		
 		health = 100;
 		healthBar = new Rectangle(_x+((width/17)*4), _y-((height/20)*4), ((width/17)*9), ((height/20)*3));
@@ -57,14 +57,15 @@ public abstract class Enemy extends AnimatedObject{
 		health -= d;
 		healthBar.width = (int)((health/100f)*((width/17)*9));
 		
-		if( health > 0)
-			state = 2; // hurt
-		else
+		//if( health > 0)
+			//state = 2; // hurt
+		//else
+		if( health < 1)
 			state = 4; // death
 	}
 	
 	public boolean isDead() {
-		return state == 4 /*&& isEnded()*/;
+		return state == 4 && isEnded();
 	}
 	
 	// il metodo update diventa un metodo Template
@@ -87,11 +88,11 @@ public abstract class Enemy extends AnimatedObject{
 				break;
 				
 			case 3: // shoot
-				//shootLogic();
+				shootLogic();
 				break;
 				
 			case 4: // death
-				//changeAnimation(4);
+				changeAnimation(2);
 				break;
 				
 		}

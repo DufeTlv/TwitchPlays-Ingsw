@@ -45,6 +45,10 @@ public class Room{
 		visited = v;
 	}
 	
+	public boolean isVisited() {
+		return visited;
+	}
+	
 	public void setBridge(int i, Rectangle b) {
 		bridges[i] = b;
 	}
@@ -66,11 +70,11 @@ public class Room{
 		for(int r = 0; r < 10; ++r) {
 			for(int c = 0; c < 16; ++c) {
 				
-				AnimatedObject newTile = new AnimatedObject(floor.x+((floor.width/16)*c), floor.y+((floor.height/10)*r), "gameAssets/sprites/tileMap.png", 8);
+				AnimatedObject newTile = new AnimatedObject(floor.x+((floor.width/16)*c), floor.y+((floor.height/10)*r), "gameAssets/sprites/tileMap.png", 15);
 				newTile.addAnimation(0, 0, 0, false);
 				newTile.addAnimation(1, 1, 0, false);
-				newTile.addAnimation(2, 4, 15, false);
-				newTile.addAnimation(5, 7, 15, false);
+				newTile.addAnimation(2, 9, 150, true);
+				newTile.addAnimation(10, 14, 100, false);
 				newTile.changeAnimation(new Random().nextInt(2));
 				tiles.add(newTile);
 				
@@ -100,6 +104,12 @@ public class Room{
 		}
 		
 		drawRoom(g2d);
+	}
+	
+	public void update() {
+		for(AnimatedObject o: tiles) {
+			o.animate();
+		}
 	}
 	
 

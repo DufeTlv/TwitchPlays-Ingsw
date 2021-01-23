@@ -20,8 +20,12 @@ public class EnemyManager {
 		
 		Random random = new Random();
 		for(int i = 0; i < quantity; ++i)
-			enemies.add(new EnemyMonkey(random.nextInt(room.width-room.width/4)+room.x, random.nextInt(room.height-(room.height/4))+room.y, "gameAssets/sprites/enemy.png", 12, m));
+			enemies.add(new EnemyMonkey(random.nextInt(room.width-room.width/4)+room.x, random.nextInt(room.height-(room.height/4))+room.y, "gameAssets/sprites/enemy.png", 16, m));
 		
+	}
+	
+	public boolean roomClear() {
+		return enemies.isEmpty();
 	}
 	
 	public ArrayList<Enemy> getEnemies(){
@@ -41,7 +45,9 @@ public class EnemyManager {
 			
 			if(e.isDead())
 				enemies.remove(i);
+			
 		}
+			
 	}
 
 }

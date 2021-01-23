@@ -25,7 +25,7 @@ public class Player extends AnimatedObject{
 		right = left = up = down = false;
 		
 		speedX = 2*2;
-		speedY = 1*2;
+		speedY = 2*2;
 		
 		health = 100;
 		
@@ -43,6 +43,10 @@ public class Player extends AnimatedObject{
 		currentRoom = r;
 	}
 	
+	public Rectangle getFeet() {
+		return feet;
+	}
+	
 	@Override
 	public void draw(Graphics2D g2d) {
 		g2d.drawRect(feet.x, feet.y, feet.width, feet.height);
@@ -51,6 +55,20 @@ public class Player extends AnimatedObject{
 		
 		g2d.drawRect(x, y, width, height);
 	}
+	
+	/*public boolean isOutsideRoom() {
+		Rectangle bU = currentRoom.getBridge(0); //up
+		Rectangle bR = currentRoom.getBridge(1); //right
+		Rectangle bD = currentRoom.getBridge(2); //down
+		Rectangle bL = currentRoom.getBridge(3); //left
+		
+		return (!currentRoom.getFloor().contains(feet)
+					&& ( bU == null || (bU != null && !bU.contains(feet)))
+					&& ( bR == null || (bR != null && !bR.contains(feet)))
+					&& ( bD == null || (bD != null && !bD.contains(feet)))
+					&& ( bL == null || (bL != null && !bL.contains(feet)))
+				);
+	}*/
 	
 	public void update() {
 		
@@ -74,12 +92,12 @@ public class Player extends AnimatedObject{
 		
 		int collisionSide; 
 		
-		if		( bU != null && (feet.y > (bU.y-feet.height) && (feet.y+feet.height) < (bU.y+bU.height+feet.height) ) ) collisionSide = (bU.x+bU.width);
-		else if ( bR != null && (feet.y > (bR.y) 			 && (feet.y+feet.height) < (bR.y+bR.height) ) ) 			return false;
-		else if ( bD != null && (feet.y > (bD.y-feet.height) && (feet.y+feet.height) < (bD.y+bD.height+feet.height) ) ) collisionSide = (bD.x+bD.width);
+		if		( bU != null && (feet.y >= (bU.y-feet.height) && (feet.y+feet.height) <= (bU.y+bU.height+feet.height) ) ) collisionSide = (bU.x+bU.width);
+		else if ( bR != null && (feet.y >= (bR.y) 			  && (feet.y+feet.height) <= (bR.y+bR.height) ) ) 			return false;
+		else if ( bD != null && (feet.y >= (bD.y-feet.height) && (feet.y+feet.height) <= (bD.y+bD.height+feet.height) ) ) collisionSide = (bD.x+bD.width);
 		else collisionSide = currentRoom.getRightSide();
 		
-		return ( (feet.x+feet.width)+speedX > collisionSide );
+		return ( (feet.x+feet.width)+speedX >= collisionSide );
 		
 	}
 	
@@ -90,12 +108,12 @@ public class Player extends AnimatedObject{
 		
 		int collisionSide; 
 		
-		if		( bU != null && (feet.y > (bU.y-feet.height) && (feet.y+feet.height) < (bU.y+bU.height+feet.height) ) ) collisionSide = (bU.x);
-		else if ( bL != null && (feet.y > (bL.y) 			 && (feet.y+feet.height) < (bL.y+bL.height) ) ) 			return false;
-		else if ( bD != null && (feet.y > (bD.y-feet.height) && (feet.y+feet.height) < (bD.y+bD.height+feet.height) ) ) collisionSide = (bD.x);
+		if		( bU != null && (feet.y >= (bU.y-feet.height) && (feet.y+feet.height) <= (bU.y+bU.height+feet.height) ) ) collisionSide = (bU.x);
+		else if ( bL != null && (feet.y >= (bL.y) 			  && (feet.y+feet.height) <= (bL.y+bL.height) ) ) 			return false;
+		else if ( bD != null && (feet.y >= (bD.y-feet.height) && (feet.y+feet.height) <= (bD.y+bD.height+feet.height) ) ) collisionSide = (bD.x);
 		else collisionSide = currentRoom.getLeftSide();
 		
-		return ( feet.x-speedX < collisionSide );
+		return ( feet.x-speedX <= collisionSide );
 		
 	}
 	
@@ -106,12 +124,12 @@ public class Player extends AnimatedObject{
 		
 		int collisionSide; 
 		
-		if		( bL != null && (feet.x > (bL.x-feet.width) && (feet.x+feet.width) < (bL.x+bL.width+feet.width) ) ) collisionSide = (bL.y);
-		else if ( bU != null && (feet.x > (bU.x) 			&& (feet.x+feet.width) < (bU.x+bU.width) ) ) 			return false;
-		else if ( bR != null && (feet.x > (bR.x-feet.width) && (feet.x+feet.width) < (bR.x+bR.width+feet.width) ) ) collisionSide = (bR.y);
+		if		( bL != null && (feet.x >= (bL.x-feet.width) && (feet.x+feet.width) <= (bL.x+bL.width+feet.width) ) ) collisionSide = (bL.y);
+		else if ( bU != null && (feet.x >= (bU.x) 			 && (feet.x+feet.width) <= (bU.x+bU.width) ) ) 			return false;
+		else if ( bR != null && (feet.x >= (bR.x-feet.width) && (feet.x+feet.width) <= (bR.x+bR.width+feet.width) ) ) collisionSide = (bR.y);
 		else collisionSide = currentRoom.getUpperSide();
 		
-		return ( (feet.y)-speedY < collisionSide );
+		return ( (feet.y)-speedY <= collisionSide );
 		
 	}
 	
@@ -122,12 +140,12 @@ public class Player extends AnimatedObject{
 		
 		int collisionSide; 
 		
-		if		( bL != null && (feet.x > (bL.x-feet.width) && (feet.x+feet.width) < (bL.x+bL.width+feet.width) ) ) collisionSide = (bL.y+bL.height);
-		else if ( bD != null && (feet.x > (bD.x) 			&& (feet.x+feet.width) < (bD.x+bD.width) ) ) 			return false;
-		else if ( bR != null && (feet.x > (bR.x-feet.width) && (feet.x+feet.width) < (bR.x+bR.width+feet.width) ) ) collisionSide = (bR.y+bR.height);
+		if		( bL != null && (feet.x >= (bL.x-feet.width) && (feet.x+feet.width) <= (bL.x+bL.width+feet.width) ) ) collisionSide = (bL.y+bL.height);
+		else if ( bD != null && (feet.x >= (bD.x) 			 && (feet.x+feet.width) <= (bD.x+bD.width) ) ) 			return false;
+		else if ( bR != null && (feet.x >= (bR.x-feet.width) && (feet.x+feet.width) <= (bR.x+bR.width+feet.width) ) ) collisionSide = (bR.y+bR.height);
 		else collisionSide = currentRoom.getBottomSide();
 		
-		return ( (feet.y+feet.height)+speedY > collisionSide );
+		return ( (feet.y+feet.height)+speedY >= collisionSide );
 		
 	}
 	

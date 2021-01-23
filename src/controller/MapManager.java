@@ -12,28 +12,36 @@ public class MapManager {
 	
 	private ArrayList<Room> rooms;
 	private ArrayList<Object> bridges;
-	private int currentRoom;
+	private int currentRoomIndex;
 	
 	public MapManager() {
 		rooms = new ArrayList<Room>();
-		currentRoom = 0;
+		currentRoomIndex = 0;
 		
 		bridges = new ArrayList<Object>();
 		
 		populateMap();
 	}
 	
+	public void setCurrentRoomIndex(Rectangle player) {
+		for(int i = 0; i < rooms.size(); ++i) {
+			if(rooms.get(i).getFloor().contains(player))
+				currentRoomIndex = i;		
+		}
+			
+	}
+	
 	public Room getCurrentRoom() {
-		return rooms.get(currentRoom);
+		return rooms.get(currentRoomIndex);
 	}
 	
 	public Rectangle getCurrentRoomFloor() {
-		return rooms.get(currentRoom).getFloor();
+		return rooms.get(currentRoomIndex).getFloor();
 	}
 	
 	/* disegna la mappa, adattare per disegnare solo le stanze nelle immediate vicinanze*/
 	public void drawMap(Graphics2D g2d) {
-		rooms.get(currentRoom).drawRoom(g2d);
+		rooms.get(currentRoomIndex).drawRoom(g2d);
 		for(Room r: rooms)
 			r.draw(g2d);
 		for(Object b: bridges)
@@ -41,12 +49,12 @@ public class MapManager {
 	}
 	
 	public void changeState(int state) {
-		rooms.get(currentRoom).changeWaterState(state);
+		rooms.get(currentRoomIndex).changeWaterState(state);
 	}
 	
 	public void populateMap() {
 		rooms.add(new Room(0, 0));
-		currentRoom = 0;
+		currentRoomIndex = 0;
 		
 		// genera un numero randomico di stanze da creare compreso tra 5 e 7
 		int nRooms = 5;//new Random().nextInt(2)+5;
@@ -87,8 +95,6 @@ public class MapManager {
 					bridges.add(bridge);
 					
 					Rectangle bBounds = bridge.getBounds();
-					//bBounds.height += (bBounds.height/48)*18;
-					//bBounds.y -= (bBounds.height/48)*9;
 					rooms.get(r).setBridge(0, bBounds);
 					roomToAdd.setBridge(2, bBounds);
 					
