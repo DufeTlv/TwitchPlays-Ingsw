@@ -24,6 +24,12 @@ public class EnemyManager {
 		
 	}
 	
+	public void addBoss(Rectangle room, int quantity, Mediator m) {
+		//Random random = new Random();
+		//enemies.add(new EnemyBoss(random.nextInt(room.width-room.width/4)+room.x, random.nextInt(room.height-(room.height/4))+room.y, "gameAssets/sprites/enemy.png", 16, m));
+		
+	}
+	
 	public boolean roomClear() {
 		return enemies.isEmpty();
 	}

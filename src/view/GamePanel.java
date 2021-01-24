@@ -1,6 +1,7 @@
 package view;
 
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.MouseInfo;
@@ -15,33 +16,29 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.Random;
 
-import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
-
-import com.sun.jdi.event.EventQueue;
 
 import controller.BulletManager;
 import controller.EnemyManager;
 import controller.GameSettings;
 import controller.MapManager;
-import model.Bullet;
 import model.HUD;
 import model.Mediator;
 import model.Player;
 import model.Object;
 
-public class GamePanel extends JLayeredPane implements ActionListener, Runnable{
+public class GamePanel extends JPanel implements ActionListener, Runnable{
 	
 	private int camX, camY;
 	private Timer timer;
 	private boolean isRunning;
+	private boolean onPause;
 	
 	private long fpsTimer;
 	private final int fpsDELAY = 17;
 	private Thread gameThread = null;
-	
 	
 	private HUD hud;
 	private Player player;
@@ -53,12 +50,22 @@ public class GamePanel extends JLayeredPane implements ActionListener, Runnable{
 	private Mediator enemyToBulletMediator;
 	
 	public GamePanel() {
+		Initialize();
+	}
+	
+	/*public GamePanel() {
+		
+	}*/
+
+	public void Initialize() {
 		addKeyListener(new KeyInputManager());
 		addMouseListener(new MouseInputManager());
 		
 		setFocusable(true);
 		setOpaque(true);
 		setBackground(new Color(97, 129, 143));
+		
+		setFont(new Font("TimesRoman", Font.BOLD, 20));
 		
 		//di seguito inserisco tutti le variabili/oggetti di gioco
 		cursor = new Object(0,0, "gameAssets/sprites/cursor.png");
@@ -80,6 +87,7 @@ public class GamePanel extends JLayeredPane implements ActionListener, Runnable{
 		hud = new HUD(camX, camY);
 		
 		isRunning = true;
+		onPause = false;
 		
 		timer = new Timer(fpsDELAY, this);
 		timer.start();
@@ -87,11 +95,16 @@ public class GamePanel extends JLayeredPane implements ActionListener, Runnable{
 		gameThread = new Thread(this);
 		gameThread.start();
 		
+		// aggiungere timer per i Record
+		
+		
 		fpsTimer = System.currentTimeMillis();
 		
 		/* testing */
 		enemyManager.addEnemies(mapManager.getCurrentRoomFloor(), 2, enemyToBulletMediator);
 		mapManager.changeState(new Random().nextInt(2)+2);
+		
+		
 	}
 	
 	@Override
@@ -110,7 +123,18 @@ public class GamePanel extends JLayeredPane implements ActionListener, Runnable{
         
         hud.draw((Graphics2D)g);
         
-        Toolkit.getDefaultToolkit().sync();        
+        if(onPause) {
+        	g.setColor(new Color(0,0,0,150));
+        	g.fillRect(camX, camY, GameSettings.getInstance().getWRes(), GameSettings.getInstance().getHRes());
+        	
+        	g.setColor(new Color(255,255,255));
+        	g.drawString("Press ESC to Resume", camX+GameSettings.getInstance().getWRes()/2, camY+GameSettings.getInstance().getHRes()/2);
+        }
+        
+        
+        
+        Toolkit.getDefaultToolkit().sync();
+        
 	}
 
 	@Override
@@ -120,30 +144,44 @@ public class GamePanel extends JLayeredPane implements ActionListener, Runnable{
 			if(System.currentTimeMillis() > fpsTimer + fpsDELAY) {
 				fpsTimer = System.currentTimeMillis();
 				
-				player.update();
-				
-				mapManager.getCurrentRoom().update();
-				bulletManager.update(mapManager.getCurrentRoomFloor(), enemyManager.getEnemies(), player);
-				enemyManager.update(mapManager.getCurrentRoomFloor());
-				
-				//mapManager.getCurrentRoom().setVisited(enemyManager.roomClear());
-				if(enemyManager.roomClear()) {
-					mapManager.setCurrentRoomIndex(player.getFeet());
-					player.setCurrentRoom(mapManager.getCurrentRoom());
+				if(!onPause) {
+					player.update();
+					
+					mapManager.getCurrentRoom().update();
+					bulletManager.update(mapManager.getCurrentRoomFloor(), enemyManager.getEnemies(), player);
+					enemyManager.update(mapManager.getCurrentRoomFloor());
+					
+					if(enemyManager.roomClear()) {						
+						mapManager.setCurrentRoomIndex(player.getFeet());
+						player.setCurrentRoom(mapManager.getCurrentRoom());
+						
+						
+						if(!mapManager.getCurrentRoom().isVisited()) {
+							if(!mapManager.differentRoom())
+								mapManager.getCurrentRoom().setVisited(true);
+							else
+								enemyManager.addEnemies(mapManager.getCurrentRoomFloor(), 3, enemyToBulletMediator);
+						}
+						
+					}
+					
+					/* aggiornamento della posizione del cursore */
+					Point p = MouseInfo.getPointerInfo().getLocation();
+					SwingUtilities.convertPointFromScreen(p, this);
+					cursor.setLocation( camX+(p.x-(cursor.getBounds().width/2)), camY+(p.y-(cursor.getBounds().height/2)));
+					
+					/* aggiornamento posizione camera/inquadratura */
+					//camX = (player.getCentralX()+cursor.getCentralX())/2 - GameSettings.getInstance().getWRes()/2;
+					//camY = (player.getCentralY()+cursor.getCentralY())/2 - GameSettings.getInstance().getHRes()/2;
+					camX = (player.getCentralX() - GameSettings.getInstance().getWRes()/2 );
+					camY = (player.getCentralY() - GameSettings.getInstance().getHRes()/2);
+					
+					hud.update(camX, camY, player.getHealth());
+				}else {
+					
+					
+					
 				}
-				
-				/* aggiornamento della posizione del cursore */
-				Point p = MouseInfo.getPointerInfo().getLocation();
-				SwingUtilities.convertPointFromScreen(p, this);
-				cursor.setLocation( camX+(p.x-(cursor.getBounds().width/2)), camY+(p.y-(cursor.getBounds().height/2)));
-				
-				/* aggiornamento posizione camera/inquadratura */
-				//camX = (player.getCentralX()+cursor.getCentralX())/2 - GameSettings.getInstance().getWRes()/2;
-				//camY = (player.getCentralY()+cursor.getCentralY())/2 - GameSettings.getInstance().getHRes()/2;
-				camX = (player.getCentralX() - GameSettings.getInstance().getWRes()/2 );
-				camY = (player.getCentralY() - GameSettings.getInstance().getHRes()/2);
-				
-				hud.update(camX, camY, player.getHealth());
 				
 				repaint();
 			}
@@ -170,6 +208,9 @@ public class GamePanel extends JLayeredPane implements ActionListener, Runnable{
 				mapManager.changeState(2);
 			if(e.getKeyCode() == KeyEvent.VK_N)
 				mapManager.changeState(3);
+			
+			if(e.getKeyCode() == KeyEvent.VK_ESCAPE)
+				onPause = !onPause;
 		}
 
 		@Override
@@ -182,14 +223,16 @@ public class GamePanel extends JLayeredPane implements ActionListener, Runnable{
 	/*			  Class MouseInputManager			*/
 	private class MouseInputManager extends MouseAdapter{
 		@Override
-		public void mouseClicked(MouseEvent e) {
+		public void mouseReleased(MouseEvent e) {
 			if(SwingUtilities.isLeftMouseButton(e)) {
 				
 				bulletManager.addPlayerBullets(player.getCentralX(), player.getCentralY(), cursor.getCentralX(), cursor.getCentralY());
 				
 			}
 			
-		}		
+		}
+		
+		
 	}
 
 }

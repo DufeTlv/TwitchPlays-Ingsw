@@ -12,15 +12,23 @@ public class MapManager {
 	
 	private ArrayList<Room> rooms;
 	private ArrayList<Object> bridges;
-	private int currentRoomIndex;
+	private int currentRoomIndex, precRoomIndex;
 	
 	public MapManager() {
 		rooms = new ArrayList<Room>();
-		currentRoomIndex = 0;
+		currentRoomIndex = precRoomIndex = 0;
 		
 		bridges = new ArrayList<Object>();
 		
 		populateMap();
+	}
+	
+	public boolean differentRoom() {
+		if(currentRoomIndex != precRoomIndex) {
+			precRoomIndex = currentRoomIndex;
+			return true;
+		}
+		return false;
 	}
 	
 	public void setCurrentRoomIndex(Rectangle player) {

@@ -17,7 +17,12 @@ public class BulletManager {
 	}
 	
 	public void addEnemyBullets(int x, int y, int x1, int y1) {
-		eBullets.add(new Bullet(x, y, x1, y1, 5, "gameAssets/sprites/snowBall.png"));
+		eBullets.add(new Bullet(x, y, x1, y1, 5, "gameAssets/sprites/snowBall_Enemy.png"));
+	}
+	
+	public void addBossBullets(int x, int y, int x1, int y1) {
+		Bullet b = new Bullet(x, y, x1, y1, 5, "gameAssets/sprites/snowBall_Boss.png");
+		eBullets.add(b);
 	}
 	
 	public void addPlayerBullets(int x, int y, int x1, int y1) {
@@ -41,7 +46,7 @@ public class BulletManager {
 			
 			
 			/* elimina/rimuove il proiettile se avviene un collisione 
-			 * con le mure o con un nemico, nel secondo caso decrementa anche 
+			 * con le mura o con un nemico, nel secondo caso decrementa anche 
 			 * la vita del nemico*/
 			if(!floor.contains(b))
 				pBullets.remove(i);
