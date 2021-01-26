@@ -6,7 +6,6 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.MouseInfo;
 import java.awt.Point;
-import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -14,106 +13,125 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.IOException;
 import java.util.Random;
 
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
-import javax.swing.Timer;
 
 import controller.BulletManager;
 import controller.EnemyManager;
 import controller.GameSettings;
+import controller.GameSound;
 import controller.MapManager;
 import model.HUD;
 import model.Mediator;
 import model.Player;
-import model.RunnableExample;
 import model.Object;
 
 public class GamePanel extends JPanel implements ActionListener, Runnable{
 	
-	private int camX, camY;
-	private Timer timer;
+	private int 	camX, camY;
 	private boolean isRunning;
-	private boolean onPause;
+	private int 	gameState;
 	
-	private long fpsTimer;
-	private final int fpsDELAY = 17;
-	private Thread gameThread = null;
-	private Thread exampleThread;
+	private long 		fpsTimer;
+	private final int 	fpsDELAY = 17;
+	private Thread 		gameThread = null;
+	//private Thread 		exampleThread;
 	
-	private HUD hud;
-	private Player player;
-	private Object cursor;
+	private HUD 		  hud;
+	private Player 		  player;
+	private Object 		  cursor;
 	private BulletManager bulletManager;
-	private MapManager mapManager;
-	private EnemyManager enemyManager;
+	private MapManager 	  mapManager;
+	private EnemyManager  enemyManager;
 	
 	private Mediator enemyToBulletMediator;
 	
 	private CardLayoutGameController controller;
+	private GameSound soundtrack;
 	
+	/* Costruttore Partita Classica */
 	public GamePanel(CardLayoutGameController c) {
 		Initialize();
 		
 		controller = c;
 	}
 	
-	/*public GamePanel(String token, String nomeCanale, String) {
+	/* Costruttore Partita Online */
+	public GamePanel(CardLayoutGameController c, String nomeUtente, String token, String nomeCanale) {
 		Initialize();
 		
-		// inizializzazione bot 
+		controller = c;
 		
-	}*/
+		// inizializzazione bot 
+		System.out.println( nomeUtente + " " + token + " #" + nomeCanale);
+		
+		
+	}
 
 	public void Initialize() {
-		addKeyListener(new KeyInputManager());
+		addKeyListener	(new KeyInputManager());
 		addMouseListener(new MouseInputManager());
+		setFocusable	(true);
+		setOpaque		(true);
+		setBackground	(new Color(97, 120, 143).brighter());
+		setFont			(new Font("TimesRoman", Font.BOLD, 20));
 		
-		setFocusable(true);
-		setOpaque(true);
-		setBackground(new Color(97, 129, 143));
+		/* variabili/oggetti di gioco */
+		gameState = 0;
 		
-		setFont(new Font("TimesRoman", Font.BOLD, 20));
-		
-		// variabili/oggetti di gioco
 		cursor = new Object(0,0, "gameAssets/sprites/cursor.png");
 		
-		mapManager = new MapManager();
-		player = new Player(100, 100, "gameAssets/sprites/player.png", 12);
+		mapManager 		= new MapManager();
+		player 			= new Player(100, 100, "gameAssets/sprites/player.png", 12);
 		player.setCurrentRoom(mapManager.getCurrentRoom());
-		enemyManager = new EnemyManager();
-		bulletManager = new BulletManager();
+		enemyManager 	= new EnemyManager();
+		bulletManager 	= new BulletManager();
 		
 		enemyToBulletMediator = new Mediator(bulletManager, player);
 		
-		// imposta come centro della camera il punto medio tra giocatore e cursore/mirino
+		/* imposta come centro della camera il punto medio tra giocatore e cursore/mirino */
 		camX = (player.getCentralX()+cursor.getCentralX())/2 - GameSettings.getInstance().getWRes()/2;
 		camY = (player.getCentralY()+cursor.getCentralY())/2 - GameSettings.getInstance().getHRes()/2;
 		
 		hud = new HUD(camX, camY);
 		
 		isRunning = true;
-		onPause = false;
-		
-		//timer = new Timer(fpsDELAY, this);
-		//timer.start();
 		
 		gameThread = new Thread(this);
 		gameThread.start();
 		
-		//exampleThread = new Thread(new RunnableExample());
-		//exampleThread.start();
+		fpsTimer = System.currentTimeMillis();
 		
 		// aggiungere timer per i Record
 		
 		
-		fpsTimer = System.currentTimeMillis();
 		
-		/* testing */
+		/* configurazione della prima stanza */
 		enemyManager.addEnemies(mapManager.getCurrentRoomFloor(), 2, enemyToBulletMediator);
+		enemyManager.addBoss(mapManager.getCurrentRoomFloor(), 1, enemyToBulletMediator);
 		mapManager.changeState(new Random().nextInt(2)+2);
 		
+		
+		/* avvio della soundtrack */
+		try {
+			soundtrack = new GameSound("gameAssets/sounds/cloth_3.wav");
+			soundtrack.startSound();
+		} catch (UnsupportedAudioFileException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (LineUnavailableException e) {
+			e.printStackTrace();
+		}
+		
+		/* timer del paint component (non serve più) */
+		//timer = new Timer(fpsDELAY, this);
+		//timer.start();
 	}
 	
 	@Override
@@ -122,28 +140,74 @@ public class GamePanel extends JPanel implements ActionListener, Runnable{
         
         g.translate(-camX, -camY);
         
-        mapManager.drawMap((Graphics2D)g);
+        mapManager.drawMap((Graphics2D)g); 	/* disegna la mappa */
         
-        player.draw((Graphics2D)g);
-        enemyManager.draw((Graphics2D)g);
-        bulletManager.draw((Graphics2D)g);
+        player.draw((Graphics2D)g);			/* disegna il giocatore */
+        enemyManager.draw((Graphics2D)g);	/* disegna i nemici */
+        bulletManager.draw((Graphics2D)g);	/* disegna i proiettili */
         
-        cursor.draw((Graphics2D)g);
+        cursor.draw((Graphics2D)g);			/* disegna il cursore/mirino */
         
-        hud.draw((Graphics2D)g);
+        hud.draw((Graphics2D)g);			/* disegna l' HUD */
         
-        if(onPause) {
+        
+        if(gameState != 0) {
         	g.setColor(new Color(0,0,0,150));
         	g.fillRect(camX, camY, GameSettings.getInstance().getWRes(), GameSettings.getInstance().getHRes());
         	
         	g.setColor(Color.WHITE);
-        	g.drawString("Press P to Resume", camX+GameSettings.getInstance().getWRes()/2-g.getFontMetrics().stringWidth("Press P to Resume")/2, camY+GameSettings.getInstance().getHRes()/3);
+        	
+        	if(gameState == 1) 		/*	  PAUSA		*/
+        		g.drawString("Press P to Resume", camX+GameSettings.getInstance().getWRes()/2-g.getFontMetrics().stringWidth("Press P to Resume")/2, camY+GameSettings.getInstance().getHRes()/3);
+        	else if(gameState == 2) /*  SCONFITTA  	*/
+        		g.drawString("Sei Stato Sconfitto", camX+GameSettings.getInstance().getWRes()/2-g.getFontMetrics().stringWidth("Sei Stato Sconfitto")/2, camY+GameSettings.getInstance().getHRes()/3);
+        	else {					/*   VITTORIA 	*/
+        		g.drawString("Hai Vinto", camX+GameSettings.getInstance().getWRes()/2-g.getFontMetrics().stringWidth("Sei Stato Sconfitto")/2, camY+GameSettings.getInstance().getHRes()/3);
+        		/* mostra qui i tempi */
+        	}
+        	
         	g.drawString("Press ESC to Menu", camX+GameSettings.getInstance().getWRes()/2-g.getFontMetrics().stringWidth("Press ESC to Menu")/2, camY+GameSettings.getInstance().getHRes()/2);
+        	
         }
         
         
         Toolkit.getDefaultToolkit().sync();
         
+	}
+	
+	public void controlliStanza() {
+		
+		/* controlla che i nemici siano finiti */
+		if(enemyManager.roomClear()) {
+			
+			/* controlla in che stanza si trova il player */
+			mapManager.setCurrentRoomIndex(player.getFeet());
+			player.setCurrentRoom(mapManager.getCurrentRoom());
+			
+			/* se la stanza è quella attuale la imposta Visitata, altrimenti genera nuovi nemici */
+			if(!mapManager.getCurrentRoom().isVisited()) {
+				
+				if(!mapManager.differentRoom()) 
+				{
+					mapManager.getCurrentRoom().setVisited(true);
+					/* se la stanza terminata è l'ultima */
+					if(mapManager.lastRoom()) gameState = 3;
+				}
+				else if(!mapManager.lastRoom()) {
+					
+					enemyManager.addEnemies(mapManager.getCurrentRoomFloor(), 3, enemyToBulletMediator);
+					
+				}
+				else {
+					
+					enemyManager.addBoss(mapManager.getCurrentRoomFloor(), 1, enemyToBulletMediator);
+					
+				}
+				
+			}
+			
+		}
+		
 	}
 
 	@Override
@@ -153,29 +217,17 @@ public class GamePanel extends JPanel implements ActionListener, Runnable{
 			if(System.currentTimeMillis() > fpsTimer + fpsDELAY) {
 				fpsTimer = System.currentTimeMillis();
 				
-				if(!onPause) {
-					
+				if(gameState == 0) {					
 					
 					mapManager.getCurrentRoom().update();
 					player.update();
 					bulletManager.update(mapManager.getCurrentRoomFloor(), enemyManager.getEnemies(), player);
 					enemyManager.update(mapManager.getCurrentRoomFloor());
 					
+					controlliStanza();
 					
-					
-					if(enemyManager.roomClear()) {						
-						mapManager.setCurrentRoomIndex(player.getFeet());
-						player.setCurrentRoom(mapManager.getCurrentRoom());
-						
-						
-						if(!mapManager.getCurrentRoom().isVisited()) {
-							if(!mapManager.differentRoom())
-								mapManager.getCurrentRoom().setVisited(true);
-							else
-								enemyManager.addEnemies(mapManager.getCurrentRoomFloor(), 3, enemyToBulletMediator);
-						}
-						
-					}
+					/* se la vita del player viene azzerata lo stato diventa Partita Persa */
+					if(player.getHealth() <= 0) gameState = 2;
 					
 					/* aggiornamento della posizione del cursore */
 					Point p = MouseInfo.getPointerInfo().getLocation();
@@ -183,15 +235,12 @@ public class GamePanel extends JPanel implements ActionListener, Runnable{
 					cursor.setLocation( camX+(p.x-(cursor.getBounds().width/2)), camY+(p.y-(cursor.getBounds().height/2)));
 					
 					/* aggiornamento posizione camera/inquadratura */
-					//camX = (player.getCentralX()+cursor.getCentralX())/2 - GameSettings.getInstance().getWRes()/2;
-					//camY = (player.getCentralY()+cursor.getCentralY())/2 - GameSettings.getInstance().getHRes()/2;
 					camX = (player.getCentralX() - GameSettings.getInstance().getWRes()/2 );
 					camY = (player.getCentralY() - GameSettings.getInstance().getHRes()/2);
+					//camX = (player.getCentralX()+cursor.getCentralX())/2 - GameSettings.getInstance().getWRes()/2;
+					//camY = (player.getCentralY()+cursor.getCentralY())/2 - GameSettings.getInstance().getHRes()/2;
 					
 					hud.update(camX, camY, player.getHealth());
-				}else {
-					
-					
 					
 				}
 				
@@ -212,8 +261,9 @@ public class GamePanel extends JPanel implements ActionListener, Runnable{
 
 		@Override
 		public void keyPressed(KeyEvent e) {
-			player.processPressEvent(e);
-			
+			if(gameState == 0 /*(player.getHealth()>0 && !(mapManager.lastRoom() && enemyManager.roomClear())*/)
+				player.processPressEvent(e);
+				
 			if(e.getKeyCode() == KeyEvent.VK_V)
 				mapManager.changeState(1);
 			if(e.getKeyCode() == KeyEvent.VK_B)
@@ -221,10 +271,29 @@ public class GamePanel extends JPanel implements ActionListener, Runnable{
 			if(e.getKeyCode() == KeyEvent.VK_N)
 				mapManager.changeState(3);
 			
-			if(e.getKeyCode() == KeyEvent.VK_P)
-				onPause = !onPause;
-			if(e.getKeyCode() == KeyEvent.VK_ESCAPE && onPause)
+			
+			if(e.getKeyCode() == KeyEvent.VK_P) {
+				if( gameState == 1 ) {
+					gameState = 0;
+					
+					try {soundtrack.resumeSound();} 
+						catch (UnsupportedAudioFileException e1) {e1.printStackTrace();} 
+						catch (IOException e1) 					 {e1.printStackTrace();} 
+						catch (LineUnavailableException e1) 	 {e1.printStackTrace();}
+					
+				}
+				else if( gameState == 0 ) {
+					
+					gameState = 1;
+					soundtrack.pauseSound();
+					
+				}
+			}
+			
+			if(e.getKeyCode() == KeyEvent.VK_ESCAPE && gameState != 0) {
 				controller.showMenu();
+				soundtrack.stopSound();
+			}
 				
 		}
 

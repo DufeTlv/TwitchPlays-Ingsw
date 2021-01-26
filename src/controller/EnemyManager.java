@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Random;
 
 import model.Enemy;
+import model.EnemyBoss;
 import model.EnemyMonkey;
 import model.Mediator;
 
@@ -25,8 +26,8 @@ public class EnemyManager {
 	}
 	
 	public void addBoss(Rectangle room, int quantity, Mediator m) {
-		//Random random = new Random();
-		//enemies.add(new EnemyBoss(random.nextInt(room.width-room.width/4)+room.x, random.nextInt(room.height-(room.height/4))+room.y, "gameAssets/sprites/enemy.png", 16, m));
+		Random random = new Random();
+		enemies.add(new EnemyBoss(random.nextInt(room.width-room.width/4)+room.x, random.nextInt(room.height-(room.height/4))+room.y, "gameAssets/sprites/boss.png", 12, m));
 		
 	}
 	

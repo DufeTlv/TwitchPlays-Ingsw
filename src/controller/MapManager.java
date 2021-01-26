@@ -23,6 +23,10 @@ public class MapManager {
 		populateMap();
 	}
 	
+	public boolean lastRoom() {
+		return currentRoomIndex == rooms.size()-1;
+	}
+	
 	public boolean differentRoom() {
 		if(currentRoomIndex != precRoomIndex) {
 			precRoomIndex = currentRoomIndex;
@@ -65,7 +69,7 @@ public class MapManager {
 		currentRoomIndex = 0;
 		
 		// genera un numero randomico di stanze da creare compreso tra 5 e 7
-		int nRooms = 5;//new Random().nextInt(2)+5;
+		int nRooms = 2;//new Random().nextInt(2)+5;
 		
 		// partendo dalla prima stanza inserisce delle stanze addiacenti e dei ponti per raggiungerle
 		while(nRooms > 0) {
@@ -108,7 +112,7 @@ public class MapManager {
 					
 					--nRooms;
 				}
-				if(dir[1] && nRooms>0 /*&&  new Random().nextBoolean()*/) {	// right
+				if(dir[1] && nRooms>0 &&  new Random().nextBoolean()) {	// right
 					Room roomToAdd = new Room(floor.x+floor.width+48*3, floor.y);
 					rooms.add(roomToAdd);
 					

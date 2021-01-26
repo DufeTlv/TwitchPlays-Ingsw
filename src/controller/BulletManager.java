@@ -3,6 +3,8 @@ package controller;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.util.ArrayList;
+import java.util.Random;
+
 import model.Bullet;
 import model.Enemy;
 import model.Player;
@@ -17,16 +19,16 @@ public class BulletManager {
 	}
 	
 	public void addEnemyBullets(int x, int y, int x1, int y1) {
-		eBullets.add(new Bullet(x, y, x1, y1, 5, "gameAssets/sprites/snowBall_Enemy.png"));
+		int offset = (new Random().nextInt(20)-10) *3;
+		eBullets.add(new Bullet(x, y, x1, y1+offset, 5, 15, "gameAssets/sprites/snowBall_Enemy.png"));
 	}
 	
 	public void addBossBullets(int x, int y, int x1, int y1) {
-		Bullet b = new Bullet(x, y, x1, y1, 15, "gameAssets/sprites/snowBall_Boss.png");
-		eBullets.add(b);
+		eBullets.add(new Bullet(x, y, x1, y1, 3, 25, "gameAssets/sprites/snowBall_Boss.png"));
 	}
 	
 	public void addPlayerBullets(int x, int y, int x1, int y1) {
-		pBullets.add(new Bullet(x, y, x1, y1, 5, "gameAssets/sprites/snowBall.png"));
+		pBullets.add(new Bullet(x, y, x1, y1, 5, 15, "gameAssets/sprites/snowBall.png"));
 	}
 	
 	public void draw(Graphics2D g2d) {
@@ -54,7 +56,7 @@ public class BulletManager {
 			/* scorro i nemici*/
 			for(Enemy e: enemies) {
 				if( e.contains(b) ){
-					e.damage(15);
+					e.damage(b.getDamage());
 					pBullets.remove(i);
 				}
 			}			
@@ -69,7 +71,7 @@ public class BulletManager {
 				eBullets.remove(i);
 			
 			if(player.contains(b)) {
-				player.damage(15);
+				//player.damage(b.getDamage());
 				eBullets.remove(i);
 			}
 		}

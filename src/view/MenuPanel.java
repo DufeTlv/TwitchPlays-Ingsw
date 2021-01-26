@@ -40,7 +40,7 @@ public class MenuPanel extends JPanel implements ActionListener, Runnable{
 	private boolean isRunning;
 	
 	private Rectangle menuScreen;
-	private Object startC, startO, settings, exit, backArrow;
+	private Object startC, online, startO, settings, exit, backArrow;
 	private Object cursor;
 	
 	private int menuSection;
@@ -61,15 +61,18 @@ public class MenuPanel extends JPanel implements ActionListener, Runnable{
 		menuScreen = new Rectangle(0,0, GameSettings.getInstance().getWRes(), GameSettings.getInstance().getHRes());
 		
 		startC 		= new Object(GameSettings.getInstance().getWRes()/2 ,GameSettings.getInstance().getHRes()/2, 			 "gameAssets/sprites/NewGameText.png"); 
-		startO		= new Object(GameSettings.getInstance().getWRes()/2 ,startC.y  +startC.height 		+ startC.height/2, 	 "gameAssets/sprites/OnlineText.png"); 
-		settings	= new Object(GameSettings.getInstance().getWRes()/2 ,startO.y  +startO.height 		+ startO.height/2, 	 "gameAssets/sprites/SettingsText.png"); 
+		online		= new Object(GameSettings.getInstance().getWRes()/2 ,startC.y  +startC.height 		+ startC.height/2, 	 "gameAssets/sprites/OnlineText.png"); 
+		settings	= new Object(GameSettings.getInstance().getWRes()/2 ,online.y  +online.height 		+ online.height/2, 	 "gameAssets/sprites/SettingsText.png"); 
 		exit		= new Object(GameSettings.getInstance().getWRes()/2 ,settings.y+settings.height 	+ startC.height/2, 	 "gameAssets/sprites/ExitText.png");
 		backArrow 	= new Object(50,50, "gameAssets/sprites/BackArrowMenu.png");
 		
+		startO 		= new Object(settings.x, settings.y, "gameAssets/sprites/NewGameText.png");
+		
 		startC.x 	-= startC.width/2;
-		startO.x 	-= startO.width/2;
+		online.x 	-= online.width/2;
 		settings.x 	-= settings.width/2;
 		exit.x 		-= exit.width/2;
+		startO.x 	-= startO.width/2;
 		
 		cursor = new Object(0,0, "gameAssets/sprites/cursor.png");
 		menuSection = 0;
@@ -117,15 +120,17 @@ public class MenuPanel extends JPanel implements ActionListener, Runnable{
 		g.setColor(Color.WHITE);
 		if(menuSection == 0) { // menu
 			startC.draw((Graphics2D)g);
-			startO.draw((Graphics2D)g);
+			online.draw((Graphics2D)g);
 			settings.draw((Graphics2D)g);
 			exit.draw((Graphics2D)g);
 			
 		}else if(menuSection == 1) { // sotto menu partita online
 			backArrow.draw((Graphics2D)g);
 			
-			g.drawString("Token", GameSettings.getInstance().getWRes()/2-g.getFontMetrics().stringWidth("Token")/2, 250);
-			g.drawString("Nome Canale", GameSettings.getInstance().getWRes()/2-g.getFontMetrics().stringWidth("Nome Canale")/2, 300);
+			g.drawString("Nome Utente", GameSettings.getInstance().getWRes()/2-g.getFontMetrics().stringWidth("Nome Utente")/2, 245);
+			g.drawString("Token", GameSettings.getInstance().getWRes()/2-g.getFontMetrics().stringWidth("Token")/2, 295);
+			g.drawString("Nome Canale", GameSettings.getInstance().getWRes()/2-g.getFontMetrics().stringWidth("Nome Canale")/2, 345);
+			startO.draw((Graphics2D)g);
 			
 		}else { // impostazioni
 			g.drawString("Impostazioni", (GameSettings.getInstance().getWRes()/2-g.getFontMetrics().stringWidth("Impostazioni")/2) , GameSettings.getInstance().getHRes()/4);
@@ -163,12 +168,30 @@ public class MenuPanel extends JPanel implements ActionListener, Runnable{
 	
 	/*			  Class MouseInputManager			*/
 	private class MouseInputManager extends MouseAdapter{
+		
+		@Override
+		public void mousePressed(MouseEvent e) {
+			if(startC.contains(cursor.getCentralX(), cursor.getCentralY()))
+				startC.y += 1*3;
+			else if(online.contains(cursor.getCentralX(), cursor.getCentralY()))
+				online.y += 1*3;
+			else if(settings.contains(cursor.getCentralX(), cursor.getCentralY()))
+				settings.y += 1*3;
+			else if(exit.contains(cursor.getCentralX(), cursor.getCentralY()))
+				exit.y += 1*3;
+				
+		}
+		
 		@Override
 		public void mouseReleased(MouseEvent e) {
 			if(SwingUtilities.isLeftMouseButton(e)) {
 				
+				
+				/* freccia per tornare al menu principale */
 				if(backArrow.contains(cursor.getCentralX(), cursor.getCentralY()) && menuSection != 0) {
 					menuSection = 0;
+					
+					/* tornando alla schermata principale del menu nasconde e disabilita i componenti dei sottomenù */
 					textField0.setEditable(false);
 					textField0.setVisible(false);
 					textField1.setEditable(false);
@@ -179,35 +202,59 @@ public class MenuPanel extends JPanel implements ActionListener, Runnable{
 					choiceBox.setVisible(false);
 				}
 				
-				if(startC.contains(cursor.getCentralX(), cursor.getCentralY())) { // partita classica
-					controller.showGame();
+				/* controlli del menu principale */
+				if(menuSection == 0) { 
+					
+					if(startC.contains(cursor.getCentralX(), cursor.getCentralY())) { // partita classica
+						controller.showGame();
+					}
+					
+					else if(online.contains(cursor.getCentralX(), cursor.getCentralY())) { // partita online
+						menuSection = 1;
+						
+						/* mostra e abilita i campi di testo del sottomenù partita online */
+						textField0.setText("");
+						textField1.setText("");
+						textField2.setText("");
+						
+						textField0.setEditable(true);
+						textField0.setVisible(true);
+						textField1.setEditable(true);
+						textField1.setVisible(true);
+						textField2.setEditable(true);
+						textField2.setVisible(true);
+					}
+					
+					else if(settings.contains(cursor.getCentralX(), cursor.getCentralY())) { // impostazioni
+						menuSection = 2;
+						
+						/* mostra e abilita i campi di testo del sottomenù impostazioni */
+						choiceBox.setEnabled(true);
+						choiceBox.setVisible(true);
+					}
+					
+					else if(exit.contains(cursor.getCentralX(), cursor.getCentralY())){ // esci dal gioco
+						isRunning = false;
+						System.exit(0);
+					}
 				}
-				
-				else if(startO.contains(cursor.getCentralX(), cursor.getCentralY())) { // partita online
-					menuSection = 1;
-					choiceBox.setEnabled(false);
-					choiceBox.setVisible(false);
-					textField0.setEditable(true);
-					textField0.setVisible(true);
-					textField1.setEditable(true);
-					textField1.setVisible(true);
-					textField2.setEditable(true);
-					textField2.setVisible(true);
+				/* controlli del sottomenu Partita Online */
+				else if(menuSection == 1 && startO.contains(cursor.getCentralX(), cursor.getCentralY())) {
+					if(	   !textField0.getText().toString().isBlank() 
+						&& !textField1.getText().toString().isBlank() 
+						&& !textField2.getText().toString().isBlank()) {
+						
+						menuSection = 0;
+						controller.showGame(
+									textField0.getText().toString(),
+									textField1.getText().toString(),
+									textField2.getText().toString()
+								);
+						
+					}else {
+						
+					}
 				}
-				
-				else if(settings.contains(cursor.getCentralX(), cursor.getCentralY())) { // impostazioni
-					menuSection = 2;
-					choiceBox.setEnabled(true);
-					choiceBox.setVisible(true);
-					textField0.setEditable(false);
-					textField0.setVisible(false);
-				}
-				
-				else if(exit.contains(cursor.getCentralX(), cursor.getCentralY())){ // esci dal gioco
-					isRunning = false;
-					System.exit(0);
-				}
-				
 			}
 		}
 		

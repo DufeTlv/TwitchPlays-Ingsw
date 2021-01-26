@@ -17,10 +17,17 @@ public class CardLayoutGameController{
 
     public void showMenu() {
         cardLayout.show(container, MENU_PANEL);
+        container.remove(1);
     }
 
     public void showGame() {
     	container.add(new GamePanel(this), GAME_PANEL);
+        cardLayout.show(container, GAME_PANEL);
+        container.transferFocus();
+    }
+    
+    public void showGame(String a, String b, String c) {
+    	container.add(new GamePanel(this, a, b, c), GAME_PANEL);
         cardLayout.show(container, GAME_PANEL);
         container.transferFocus();
     }

@@ -7,8 +7,9 @@ public class Bullet extends Object{
 	private double directions[];
 	private double position[];
 	private int velocity;
+	private int damage;
 
-	public Bullet(int _x, int _y, int x1, int y2, int v, String filePath) {
+	public Bullet(int _x, int _y, int x1, int y2, int v, int d, String filePath) {
 		super(_x, _y, filePath);
 		
 		position = new double[2];
@@ -24,7 +25,12 @@ public class Bullet extends Object{
 		directions[1] /= length;
 		
 		velocity = v;
+		damage = d;
 		
+	}
+	
+	public int getDamage() {
+		return damage;
 	}
 	
 	public void update() {
