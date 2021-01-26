@@ -26,6 +26,7 @@ import controller.EnemyManager;
 import controller.GameSettings;
 import controller.GameSound;
 import controller.MapManager;
+import javaTwirk.TwitchIRC;
 import model.HUD;
 import model.Mediator;
 import model.Player;
@@ -40,7 +41,9 @@ public class GamePanel extends JPanel implements ActionListener, Runnable{
 	private long 		fpsTimer;
 	private final int 	fpsDELAY = 17;
 	private Thread 		gameThread = null;
-	//private Thread 		exampleThread;
+	private Thread 		twitchThread = null;
+	
+	private TwitchIRC 	  bot = null;
 	
 	private HUD 		  hud;
 	private Player 		  player;
@@ -62,13 +65,17 @@ public class GamePanel extends JPanel implements ActionListener, Runnable{
 	}
 	
 	/* Costruttore Partita Online */
-	public GamePanel(CardLayoutGameController c, String nomeUtente, String token, String nomeCanale) {
+	public GamePanel(CardLayoutGameController c, String name, String authToken, String channel) {
 		Initialize();
 		
 		controller = c;
 		
-		// inizializzazione bot 
-		System.out.println( nomeUtente + " " + token + " #" + nomeCanale);
+		// inizializzazione e avvio del bot 
+		System.out.println( name + " " + authToken + " #" + channel);
+		
+		bot = new TwitchIRC(authToken, channel, name);
+		twitchThread = new Thread(bot);
+		twitchThread.start();
 		
 		
 	}
@@ -113,7 +120,7 @@ public class GamePanel extends JPanel implements ActionListener, Runnable{
 		
 		/* configurazione della prima stanza */
 		enemyManager.addEnemies(mapManager.getCurrentRoomFloor(), 2, enemyToBulletMediator);
-		enemyManager.addBoss(mapManager.getCurrentRoomFloor(), 1, enemyToBulletMediator);
+		//enemyManager.addBoss(mapManager.getCurrentRoomFloor(), 1, enemyToBulletMediator);
 		mapManager.changeState(new Random().nextInt(2)+2);
 		
 		
@@ -195,13 +202,15 @@ public class GamePanel extends JPanel implements ActionListener, Runnable{
 				}
 				else if(!mapManager.lastRoom()) {
 					
-					enemyManager.addEnemies(mapManager.getCurrentRoomFloor(), 3, enemyToBulletMediator);
+					int n = (bot != null)? bot.getEnemiesNumber() : 3;
+					enemyManager.addEnemies(mapManager.getCurrentRoomFloor(), n, enemyToBulletMediator);
+					mapManager.changeState( (bot != null)? bot.getState()+2 : new Random().nextInt(2)+2 );
 					
 				}
 				else {
 					
 					enemyManager.addBoss(mapManager.getCurrentRoomFloor(), 1, enemyToBulletMediator);
-					
+					mapManager.changeState( (bot != null)? bot.getState()+2 : new Random().nextInt(2)+2 );
 				}
 				
 			}
@@ -291,8 +300,9 @@ public class GamePanel extends JPanel implements ActionListener, Runnable{
 			}
 			
 			if(e.getKeyCode() == KeyEvent.VK_ESCAPE && gameState != 0) {
-				controller.showMenu();
 				soundtrack.stopSound();
+				if(bot != null) bot.closeBotX();
+				controller.showMenu();
 			}
 				
 		}

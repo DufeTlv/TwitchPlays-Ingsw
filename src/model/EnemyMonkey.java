@@ -5,6 +5,7 @@ import java.util.Random;
 
 public class EnemyMonkey extends Enemy{
 	
+	
 	public EnemyMonkey(int _x, int _y, String filePath, int nFrames, Mediator m) {
 		super(_x, _y, filePath, nFrames, m);
 		
@@ -40,12 +41,14 @@ public class EnemyMonkey extends Enemy{
 		
 		Random r = new Random();
 		
-		int xRange = ( r.nextBoolean() && (getCentralX()-(20*3) > floor.x+10*3)? -20: (getCentralX()+(20*3) < floor.x+floor.width-20*3 )? 10 : 0)*3;
-		int yRange = ( r.nextBoolean() && (getCentralY()-(20*3) > floor.y+10*3)? -20: (getCentralY()+(20*3) < floor.y+floor.height-20*3)? 10 : 0)*3;
+		int xRange = ( r.nextBoolean() && (getCentralX()-(20*3) > floor.x+30*3)? -20: (getCentralX()+(20*3) < floor.x+floor.width-20*3 )? 10 : 0)*3;
+		int yRange = ( r.nextBoolean() && (getCentralY()-(20*3) > floor.y+30*3)? -20: (getCentralY()+(20*3) < floor.y+floor.height-20*3)? 10 : 0)*3;
 		
 		// genero una posizione verso cui dirigere l'enemy
-		directions[0] = ( (r.nextInt(10)*3) + (getCentralX() + xRange*3) ) - getCentralX();
-		directions[1] = ( (r.nextInt(10)*3) + (getCentralY() + yRange*3) ) - getCentralY();
+		//directions[0] = ( (r.nextInt(10)*3) + (getCentralX() + xRange*3) ) - getCentralX();
+		//directions[1] = ( (r.nextInt(10)*3) + (getCentralY() + yRange*3) ) - getCentralY();
+		directions[0] = ( (getCentralX() + xRange*3) ) - getCentralX();
+		directions[1] = ( (getCentralY() + yRange*3) ) - getCentralY();
 		
 		length = Math.sqrt((directions[0]*directions[0]) + (directions[1]*directions[1]));
 		
