@@ -6,10 +6,12 @@ import java.awt.event.KeyEvent;
 
 public class Player extends AnimatedObject{
 	
-	private int speedX, speedY;
+	private double speed[];
+	private double position[];
 	private boolean right, left, up, down;
 	private Rectangle feet;
 	private Room currentRoom;
+	private AnimatedObject currentTile;
 	
 	private int health, ammo;
 
@@ -19,15 +21,22 @@ public class Player extends AnimatedObject{
 		addAnimation(0, 3, 200, true);  // idle
 		addAnimation(4, 11, 100, true); // walk
 		
-		
 		feet = new Rectangle(_x+((width/17)*4), _y+((height/20)*18), ((width/17)*9), ((height/20)*3));
 		
 		right = left = up = down = false;
 		
-		speedX = 2*2;
-		speedY = 2*2;
+		position = new double[2];
+		position[0] = _x;
+		position[1] = _y;
+		
+		speed = new double[2];
+		speed[0] = 2*2;
+		speed[1] = 2*2;
 		
 		health = 100;
+		
+		/*testing bruttissimo*/
+		currentTile = null;
 		
 	}
 	
@@ -74,15 +83,26 @@ public class Player extends AnimatedObject{
 		
 		animate();
 		
-		if(right && !rightCollision()) {x += speedX; changeAnimation(1);}
-		if(left  && !leftCollition())  {x -= speedX; changeAnimation(1);}
-		if(up	 && !upCollition())	   {y -= speedY; changeAnimation(1);}
-		if(down	 && !downCollition())  {y += speedY; changeAnimation(1);}
+		if(right && !rightCollision()) {position[0] += speed[0];	x = (int)position[0]; changeAnimation(1);}
+		if(left  && !leftCollition())  {position[0] -= speed[0];	x = (int)position[0]; changeAnimation(1);}
+		if(up	 && !upCollition())	   {position[1] -= speed[1];	y = (int)position[1]; changeAnimation(1);}
+		if(down	 && !downCollition())  {position[1] += speed[1];	y = (int)position[1]; changeAnimation(1);}
 		
 		if(!right && !left && !up && !down) changeAnimation(0);
 		
 		feet.x = x+((width/17)*4);
 		feet.y = y+((height/20)*18);
+		
+		if(currentTile == null || !currentTile.contains((int)feet.getCenterX(), (int)feet.getCenterY())) {
+			currentTile = currentRoom.getCurrentTile((int)feet.getCenterX(), (int)feet.getCenterY());
+			
+			if(currentTile.currentAnimation < 2)
+				speed[0] = speed[1] = 2*2;
+			else if(currentTile.currentAnimation == 2 )
+				speed[0] = speed[1] = 0.5*2;
+			else if(currentTile.currentAnimation == 3 )
+				speed[0] = speed[1] = 4*2;
+		}
 	}
 	
 	public boolean rightCollision() {
@@ -97,7 +117,7 @@ public class Player extends AnimatedObject{
 		else if ( bD != null && (feet.y >= (bD.y-feet.height) && (feet.y+feet.height) <= (bD.y+bD.height+feet.height) ) ) collisionSide = (bD.x+bD.width);
 		else collisionSide = currentRoom.getRightSide();
 		
-		return ( (feet.x+feet.width)+speedX >= collisionSide );
+		return ( (feet.x+feet.width)+speed[0] >= collisionSide );
 		
 	}
 	
@@ -113,7 +133,7 @@ public class Player extends AnimatedObject{
 		else if ( bD != null && (feet.y >= (bD.y-feet.height) && (feet.y+feet.height) <= (bD.y+bD.height+feet.height) ) ) collisionSide = (bD.x);
 		else collisionSide = currentRoom.getLeftSide();
 		
-		return ( feet.x-speedX <= collisionSide );
+		return ( feet.x-speed[0] <= collisionSide );
 		
 	}
 	
@@ -129,7 +149,7 @@ public class Player extends AnimatedObject{
 		else if ( bR != null && (feet.x >= (bR.x-feet.width) && (feet.x+feet.width) <= (bR.x+bR.width+feet.width) ) ) collisionSide = (bR.y);
 		else collisionSide = currentRoom.getUpperSide();
 		
-		return ( (feet.y)-speedY <= collisionSide );
+		return ( (feet.y)-speed[1] <= collisionSide );
 		
 	}
 	
@@ -145,7 +165,7 @@ public class Player extends AnimatedObject{
 		else if ( bR != null && (feet.x >= (bR.x-feet.width) && (feet.x+feet.width) <= (bR.x+bR.width+feet.width) ) ) collisionSide = (bR.y+bR.height);
 		else collisionSide = currentRoom.getBottomSide();
 		
-		return ( (feet.y+feet.height)+speedY >= collisionSide );
+		return ( (feet.y+feet.height)+speed[1] >= collisionSide );
 		
 	}
 	

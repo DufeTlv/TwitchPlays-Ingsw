@@ -21,7 +21,7 @@ public class BulletManager {
 	}
 	
 	public void addBossBullets(int x, int y, int x1, int y1) {
-		Bullet b = new Bullet(x, y, x1, y1, 5, "gameAssets/sprites/snowBall_Boss.png");
+		Bullet b = new Bullet(x, y, x1, y1, 15, "gameAssets/sprites/snowBall_Boss.png");
 		eBullets.add(b);
 	}
 	

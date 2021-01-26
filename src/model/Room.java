@@ -24,6 +24,15 @@ public class Room{
 		
 	}
 	
+	/* test tile corrente */
+	public AnimatedObject getCurrentTile(int x, int y) {
+		for(AnimatedObject o: tiles) {
+			if(o.contains(x,y))
+				return o;
+		}
+		return tiles.get(0);
+	}
+	
 	public int getUpperSide() {
 		return floor.y;
 	}
@@ -103,7 +112,7 @@ public class Room{
 			o.draw(g2d);
 		}
 		
-		drawRoom(g2d);
+		//drawRoom(g2d);
 	}
 	
 	public void update() {
