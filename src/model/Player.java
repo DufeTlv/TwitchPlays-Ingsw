@@ -36,7 +36,6 @@ public class Player extends AnimatedObject{
 		
 		health = 100;
 		
-		/*testing bruttissimo*/
 		currentTile = null;
 		
 	}
