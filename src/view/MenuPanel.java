@@ -1,7 +1,5 @@
 package view;
 
-import java.awt.BorderLayout;
-import java.awt.CardLayout;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
@@ -17,9 +15,9 @@ import java.awt.event.MouseEvent;
 
 import javax.swing.JComboBox;
 import javax.swing.JPanel;
+import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
-import javax.swing.Timer;
 
 import controller.GameSettings;
 import model.Object;
@@ -31,7 +29,8 @@ public class MenuPanel extends JPanel implements ActionListener, Runnable{
 	private Thread gameThread = null;
 	private CardLayoutGameController controller;
 	
-	private JTextField textField0, textField1, textField2;
+	private JTextField textField0, textField2;
+	private JPasswordField textField1;
 	
 	private JComboBox choiceBox;
 	private String[] choices = {"800x600", "1280x720", "1920x1080"};
@@ -61,7 +60,7 @@ public class MenuPanel extends JPanel implements ActionListener, Runnable{
 		titleScreen = new Object(GameSettings.getInstance().getWRes()/2 , 			100 								 , 	 "gameAssets/sprites/TitleScreen.png");
 		startC 		= new Object(GameSettings.getInstance().getWRes()/2 , GameSettings.getInstance().getHRes()/2		 , 	 "gameAssets/sprites/NewGameText.png"); 
 		online		= new Object(GameSettings.getInstance().getWRes()/2 , startC.y  +startC.height 		+ startC.height/2, 	 "gameAssets/sprites/OnlineText.png"); 
-		settings	= new Object(GameSettings.getInstance().getWRes()/2 , online.y  +online.height 		+ online.height/2, 	 "gameAssets/sprites/SettingsText.png"); 
+		settings	= new Object(GameSettings.getInstance().getWRes()/2 , online.y  +online.height 		+ startC.height/2, 	 "gameAssets/sprites/SettingsText.png"); 
 		exit		= new Object(GameSettings.getInstance().getWRes()/2 , settings.y+settings.height 	+ startC.height/2, 	 "gameAssets/sprites/ExitText.png");
 		backArrow 	= new Object(50,50, "gameAssets/sprites/BackArrowMenu.png");
 		
@@ -82,7 +81,7 @@ public class MenuPanel extends JPanel implements ActionListener, Runnable{
 		textField0.setEditable(false);
 		textField0.setVisible(false);
 		
-		textField1 = new JTextField();
+		textField1 = new JPasswordField();
 		textField1.setBounds(300, 300, 200, 25);
 		textField1.setEditable(false);
 		textField1.setVisible(false);
@@ -262,7 +261,14 @@ public class MenuPanel extends JPanel implements ActionListener, Runnable{
 					}
 				}
 				
+				startC.y 	  = GameSettings.getInstance().getHRes()/2;
+				online.y 	  = startC.y  	+startC.height 	+ startC.height/2;
+				settings.y 	  = online.y  	+startC.height 	+ startC.height/2;
+				exit.y 		  = settings.y  +startC.height 	+ startC.height/2;
+				startO.y 	  = settings.y;
+				
 			}
+			
 		}
 		
 	}

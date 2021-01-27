@@ -24,11 +24,15 @@ public class CardLayoutGameController{
     	container.add(new GamePanel(this), GAME_PANEL);
         cardLayout.show(container, GAME_PANEL);
         container.transferFocus();
+        
+        if (container.getComponentCount() > 2)  {container.remove(1);}
     }
     
     public void showGame(String a, String b, String c) {
     	container.add(new GamePanel(this, a, b, c), GAME_PANEL);
         cardLayout.show(container, GAME_PANEL);
         container.transferFocus();
+        
+        if (container.getComponentCount() > 2)  {container.remove(1);}
     }
 }

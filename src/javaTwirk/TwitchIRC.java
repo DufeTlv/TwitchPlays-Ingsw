@@ -42,7 +42,7 @@ public class TwitchIRC extends ListenerAdapter implements Runnable
                 .setOnJoinWhoEnabled(false) //Twitch doesn't support WHO command
                 .addServer("irc.twitch.tv")
                 .setName(this.name)
-                .setServerPassword("oauth:" + this.authToken)
+                .setServerPassword(/*"oauth:" + */this.authToken)
                 .addAutoJoinChannel("#" + this.channel)
                 .addListener(this)
                 .buildConfiguration();
@@ -62,6 +62,18 @@ public class TwitchIRC extends ListenerAdapter implements Runnable
     public void setName(String name) {
         this.name =name;
         initialize();
+    }
+    
+    public String getAuthToken() {
+    	return this.authToken;
+    }
+    
+    public String getChannel() {
+    	return this.channel;
+    }
+
+    public String getName() {
+    	return this.name;
     }
 
 

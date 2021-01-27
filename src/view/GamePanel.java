@@ -65,6 +65,7 @@ public class GamePanel extends JPanel implements ActionListener, Runnable{
 		Initialize();
 		
 		controller = c;
+		
 	}
 	
 	/* Costruttore Partita Online */
@@ -74,7 +75,7 @@ public class GamePanel extends JPanel implements ActionListener, Runnable{
 		controller = c;
 		
 		// inizializzazione e avvio del bot 
-		System.out.println( name + " " + authToken + " #" + channel);
+		//System.out.println( name + " " + authToken + " #" + channel);
 		
 		bot = new TwitchIRC(authToken, channel, name);
 		twitchThread = new Thread(bot);
@@ -97,7 +98,12 @@ public class GamePanel extends JPanel implements ActionListener, Runnable{
 		cursor = new Object(0,0, "gameAssets/sprites/cursor.png");
 		
 		mapManager 		= new MapManager();
-		player 			= new Player(100, 100, "gameAssets/sprites/player.png", 12);
+		player 			= new Player(
+								(int)mapManager.getCurrentRoomFloor().getCenterX(), 
+								(int)mapManager.getCurrentRoomFloor().getCenterY(), 
+								"gameAssets/sprites/player.png", 
+								12
+							);
 		player.setCurrentRoom(mapManager.getCurrentRoom());
 		enemyManager 	= new EnemyManager();
 		bulletManager 	= new BulletManager();
@@ -165,11 +171,12 @@ public class GamePanel extends JPanel implements ActionListener, Runnable{
         	
         	g.setColor(Color.WHITE);
         	
-        	if(gameState == 1) 		/*	  PAUSA		*/
+        	if(gameState == 1) { 	   /*	  PAUSA		*/
         		g.drawString("Press P to Resume", camX+GameSettings.getInstance().getWRes()/2-g.getFontMetrics().stringWidth("Press P to Resume")/2, camY+GameSettings.getInstance().getHRes()/3);
-        	else if(gameState == 2) /*  SCONFITTA  	*/
+        	}else if(gameState == 2) { /*  SCONFITTA  	*/
         		g.drawString("Sei Stato Sconfitto", camX+GameSettings.getInstance().getWRes()/2-g.getFontMetrics().stringWidth("Sei Stato Sconfitto")/2, camY+GameSettings.getInstance().getHRes()/3);
-        	else {					/*   VITTORIA 	*/
+        		g.drawString("Press R to Retry", camX+GameSettings.getInstance().getWRes()/2-g.getFontMetrics().stringWidth("Press R to Retry")/2, camY+GameSettings.getInstance().getHRes()/2+50);
+        	}else {					   /*   VITTORIA 	*/
         		
         		g.drawString("Hai Vinto", camX+GameSettings.getInstance().getWRes()/2-g.getFontMetrics().stringWidth("Sei Stato Sconfitto")/2, camY+GameSettings.getInstance().getHRes()/3);
         		String s = " minuti: " + chronometer.getTime().get("minutes").toString() + " secondi: " + chronometer.getTime().get("seconds").toString();
@@ -195,15 +202,17 @@ public class GamePanel extends JPanel implements ActionListener, Runnable{
 			mapManager.setCurrentRoomIndex(player.getFeet());
 			player.setCurrentRoom(mapManager.getCurrentRoom());
 			
-			/* se la stanza è quella attuale la imposta Visitata, altrimenti genera nuovi nemici */
+			
 			if(!mapManager.getCurrentRoom().isVisited()) {
 				
+				/* se la stanza è quella attuale la imposta Visitata */
 				if(!mapManager.differentRoom()) 
 				{
 					mapManager.getCurrentRoom().setVisited(true);
 					/* se la stanza terminata è l'ultima */
 					if(mapManager.lastRoom()) { gameState = 3; chronometer.updatePause();}
 				}
+				/* altrimenti, se è una stanza NON Visitata e non è l'ultima stanza, genera nuovi nemici, e cambia lo stato del terreno */
 				else if(!mapManager.lastRoom()) {
 					
 					int n = (bot != null)? bot.getEnemiesNumber() : 0;
@@ -215,6 +224,7 @@ public class GamePanel extends JPanel implements ActionListener, Runnable{
 					mapManager.changeState( waterState );
 					
 				}
+				/* altrimenti, genera il Boss, e cambia lo stato del terreno */
 				else {
 					
 					enemyManager.addBoss(mapManager.getCurrentRoomFloor(), 1, enemyToBulletMediator);
@@ -222,6 +232,7 @@ public class GamePanel extends JPanel implements ActionListener, Runnable{
 					int waterState = (bot != null)? bot.getState()+2 : 0;
 					if(waterState == 0) waterState = new Random().nextInt(2)+2;
 					mapManager.changeState( waterState );
+					
 				}
 				
 			}
@@ -237,7 +248,7 @@ public class GamePanel extends JPanel implements ActionListener, Runnable{
 			if(System.currentTimeMillis() > fpsTimer + fpsDELAY) {
 				fpsTimer = System.currentTimeMillis();
 				
-				if(gameState == 0) {					
+				if(gameState == 0) { /* partita in corso (quindi ne pausa, ne vittoria, ne sconfitta)*/					
 					
 					mapManager.getCurrentRoom().update();
 					player.update();
@@ -246,7 +257,7 @@ public class GamePanel extends JPanel implements ActionListener, Runnable{
 					
 					controlliStanza();
 					
-					/* se la vita del player viene azzerata lo stato diventa Partita Persa */
+					/* se la vita del player viene azzerata lo stato diventa Partita Persa/Sconfitta */
 					if(player.getHealth() <= 0) gameState = 2;
 					
 					/* aggiornamento della posizione del cursore */
@@ -287,6 +298,7 @@ public class GamePanel extends JPanel implements ActionListener, Runnable{
 			if(gameState == 0 /*(player.getHealth()>0 && !(mapManager.lastRoom() && enemyManager.roomClear())*/)
 				player.processPressEvent(e);
 				
+			/* comandi testing */
 			if(e.getKeyCode() == KeyEvent.VK_V)
 				mapManager.changeState(1);
 			if(e.getKeyCode() == KeyEvent.VK_B)
@@ -314,9 +326,22 @@ public class GamePanel extends JPanel implements ActionListener, Runnable{
 				}
 			}
 			
+			if(e.getKeyCode() == KeyEvent.VK_R && gameState == 2) {
+				soundtrack.stopSound();
+				isRunning = false;
+				
+				if(bot != null) {
+					bot.closeBotX();
+					controller.showGame(bot.getAuthToken(), bot.getChannel(), bot.getName());
+				}else {
+					controller.showGame();
+				}
+			}
+			
 			if(e.getKeyCode() == KeyEvent.VK_ESCAPE && gameState != 0) {
 				soundtrack.stopSound();
 				if(bot != null) bot.closeBotX();
+				isRunning = false;
 				controller.showMenu();
 			}
 				
