@@ -1,5 +1,6 @@
 package model;
 
+import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.event.KeyEvent;
@@ -58,11 +59,12 @@ public class Player extends AnimatedObject{
 	
 	@Override
 	public void draw(Graphics2D g2d) {
-		g2d.drawRect(feet.x, feet.y, feet.width, feet.height);
+		g2d.setColor(new Color(0,0,0, 120));
+		g2d.fillRect(feet.x, feet.y, feet.width, feet.height);
 		
 		super.draw(g2d);		
 		
-		g2d.drawRect(x, y, width, height);
+		//g2d.drawRect(x, y, width, height);
 	}
 	
 	/*public boolean isOutsideRoom() {

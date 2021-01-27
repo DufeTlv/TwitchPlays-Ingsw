@@ -53,7 +53,7 @@ public class EnemyBoss extends Enemy{
 		if(length <= 0) {
 			length = 10*3;
 			state = 0;
-			System.out.println(length);
+			//System.out.println(length);
 		}
 		
 		

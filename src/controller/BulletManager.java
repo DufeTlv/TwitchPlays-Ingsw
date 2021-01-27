@@ -41,6 +41,8 @@ public class BulletManager {
 	}
 	
 	public void update(Rectangle floor, ArrayList<Enemy> enemies, Player player) {
+		
+		/* controllo collisioni proiettili Player */
 		for(int i = 0; i < pBullets.size(); ++i) {			
 			Bullet b = pBullets.get(i);
 			
@@ -52,17 +54,18 @@ public class BulletManager {
 			 * la vita del nemico*/
 			if(!floor.contains(b))
 				pBullets.remove(i);
-			
-			/* scorro i nemici*/
-			for(Enemy e: enemies) {
-				if( e.contains(b) ){
-					e.damage(b.getDamage());
-					pBullets.remove(i);
-				}
-			}			
-			
+			else {
+				/* scorro i nemici*/
+				for(Enemy e: enemies) {
+					if( e.contains(b) ){
+						e.damage(b.getDamage());
+						pBullets.remove(i);
+					}
+				}			
+			}
 		}
 		
+		/* controllo collisioni proiettili Enemy */
 		for(int i = 0; i < eBullets.size(); ++i) {
 			Bullet b = eBullets.get(i);
 			b.update();
@@ -70,8 +73,8 @@ public class BulletManager {
 			if(!floor.contains(b))
 				eBullets.remove(i);
 			
-			if(player.contains(b)) {
-				//player.damage(b.getDamage());
+			else if(player.contains(b)) {
+				player.damage(b.getDamage());
 				eBullets.remove(i);
 			}
 		}
