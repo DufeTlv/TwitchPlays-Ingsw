@@ -26,7 +26,6 @@ import model.Object;
 
 public class MenuPanel extends JPanel implements ActionListener, Runnable{
 	
-	private Timer timer;
 	private long fpsTimer;
 	private final int fpsDELAY = 17;
 	private Thread gameThread = null;
@@ -40,11 +39,10 @@ public class MenuPanel extends JPanel implements ActionListener, Runnable{
 	private boolean isRunning;
 	
 	private Rectangle menuScreen;
-	private Object startC, online, startO, settings, exit, backArrow;
+	private Object titleScreen, startC, online, startO, settings, exit, backArrow;
 	private Object cursor;
 	
 	private int menuSection;
-	
 
 	public MenuPanel(CardLayoutGameController c) {
 		addMouseListener(new MouseInputManager());
@@ -60,19 +58,21 @@ public class MenuPanel extends JPanel implements ActionListener, Runnable{
 		// variabili/oggetti di gioco
 		menuScreen = new Rectangle(0,0, GameSettings.getInstance().getWRes(), GameSettings.getInstance().getHRes());
 		
-		startC 		= new Object(GameSettings.getInstance().getWRes()/2 ,GameSettings.getInstance().getHRes()/2, 			 "gameAssets/sprites/NewGameText.png"); 
-		online		= new Object(GameSettings.getInstance().getWRes()/2 ,startC.y  +startC.height 		+ startC.height/2, 	 "gameAssets/sprites/OnlineText.png"); 
-		settings	= new Object(GameSettings.getInstance().getWRes()/2 ,online.y  +online.height 		+ online.height/2, 	 "gameAssets/sprites/SettingsText.png"); 
-		exit		= new Object(GameSettings.getInstance().getWRes()/2 ,settings.y+settings.height 	+ startC.height/2, 	 "gameAssets/sprites/ExitText.png");
+		titleScreen = new Object(GameSettings.getInstance().getWRes()/3 , 			100 								 , 	 "gameAssets/sprites/TitleScreen.png");
+		startC 		= new Object(GameSettings.getInstance().getWRes()/2 , GameSettings.getInstance().getHRes()/2		 , 	 "gameAssets/sprites/NewGameText.png"); 
+		online		= new Object(GameSettings.getInstance().getWRes()/2 , startC.y  +startC.height 		+ startC.height/2, 	 "gameAssets/sprites/OnlineText.png"); 
+		settings	= new Object(GameSettings.getInstance().getWRes()/2 , online.y  +online.height 		+ online.height/2, 	 "gameAssets/sprites/SettingsText.png"); 
+		exit		= new Object(GameSettings.getInstance().getWRes()/2 , settings.y+settings.height 	+ startC.height/2, 	 "gameAssets/sprites/ExitText.png");
 		backArrow 	= new Object(50,50, "gameAssets/sprites/BackArrowMenu.png");
 		
 		startO 		= new Object(settings.x, settings.y, "gameAssets/sprites/NewGameText.png");
 		
-		startC.x 	-= startC.width/2;
-		online.x 	-= online.width/2;
-		settings.x 	-= settings.width/2;
-		exit.x 		-= exit.width/2;
-		startO.x 	-= startO.width/2;
+		titleScreen.x -= titleScreen.width/2;
+		startC.x 	  -= startC.width/2;
+		online.x 	  -= online.width/2;
+		settings.x 	  -= settings.width/2;
+		exit.x 		  -= exit.width/2;
+		startO.x 	  -= startO.width/2;
 		
 		cursor = new Object(0,0, "gameAssets/sprites/cursor.png");
 		menuSection = 0;
@@ -114,11 +114,12 @@ public class MenuPanel extends JPanel implements ActionListener, Runnable{
 	
 	@Override
     public void paintComponent(Graphics g) {
-		g.setColor(Color.CYAN.darker());
+		g.setColor(Color.LIGHT_GRAY.darker());
 		g.fillRect(menuScreen.x, menuScreen.y, menuScreen.width, menuScreen.height);
 		
 		g.setColor(Color.WHITE);
 		if(menuSection == 0) { // menu
+			titleScreen.draw((Graphics2D)g);
 			startC.draw((Graphics2D)g);
 			online.draw((Graphics2D)g);
 			settings.draw((Graphics2D)g);
@@ -244,6 +245,13 @@ public class MenuPanel extends JPanel implements ActionListener, Runnable{
 						&& !textField1.getText().toString().isBlank() 
 						&& !textField2.getText().toString().isBlank()) {
 						
+						textField0.setEditable(false);
+						textField0.setVisible(false);
+						textField1.setEditable(false);
+						textField1.setVisible(false);
+						textField2.setEditable(false);
+						textField2.setVisible(false);
+						
 						menuSection = 0;
 						controller.showGame(
 									textField0.getText().toString(),
@@ -251,10 +259,9 @@ public class MenuPanel extends JPanel implements ActionListener, Runnable{
 									textField2.getText().toString()
 								);
 						
-					}else {
-						
 					}
 				}
+				
 			}
 		}
 		

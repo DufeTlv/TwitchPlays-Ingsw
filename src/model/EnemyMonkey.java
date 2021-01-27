@@ -5,9 +5,24 @@ import java.util.Random;
 
 public class EnemyMonkey extends Enemy{
 	
+	protected double directions[];
+	protected double position[];
+	protected double length;
+	protected double velocity;
+	
 	
 	public EnemyMonkey(int _x, int _y, String filePath, int nFrames, Mediator m) {
 		super(_x, _y, filePath, nFrames, m);
+		
+		position = new double[2];
+		position[0] = getCentralX();
+		position[1] = getCentralY();
+		
+		directions = new double[2];		
+		directions[0] = -1;
+		directions[1] = -1; 
+		
+		velocity = 1.50;
 		
 	}
 

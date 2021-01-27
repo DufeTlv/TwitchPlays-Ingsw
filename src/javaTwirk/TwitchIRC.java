@@ -93,14 +93,22 @@ public class TwitchIRC extends ListenerAdapter implements Runnable
 
     public int getState() {
         //l'indice del valore più alto nell'array
-        int maxIndex = Arrays.stream(statesTiles)
+        /*int maxIndex = Arrays.stream(statesTiles)
                 .boxed()
                 .collect(Collectors.toList())
                 .indexOf(Math.max(statesTiles[0], statesTiles[1]));
 
         statesTiles = new int[2]; //reset
 
-        return maxIndex;
+        return maxIndex;*/
+    	
+    	int max = 0;
+    	if(statesTiles[0] < statesTiles[1])
+    		max = 1;
+    	
+    	statesTiles[0] = statesTiles[1] = 0;
+    	
+    	return max;
     }
 
     public void startBotX() throws IOException, IrcException {

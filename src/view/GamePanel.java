@@ -27,6 +27,7 @@ import controller.GameSettings;
 import controller.GameSound;
 import controller.MapManager;
 import javaTwirk.TwitchIRC;
+import model.Chronometer;
 import model.HUD;
 import model.Mediator;
 import model.Player;
@@ -56,6 +57,8 @@ public class GamePanel extends JPanel implements ActionListener, Runnable{
 	
 	private CardLayoutGameController controller;
 	private GameSound soundtrack;
+	
+	private Chronometer chronometer;
 	
 	/* Costruttore Partita Classica */
 	public GamePanel(CardLayoutGameController c) {
@@ -115,18 +118,16 @@ public class GamePanel extends JPanel implements ActionListener, Runnable{
 		fpsTimer = System.currentTimeMillis();
 		
 		// aggiungere timer per i Record
-		
-		
+		chronometer = new Chronometer();		
 		
 		/* configurazione della prima stanza */
 		enemyManager.addEnemies(mapManager.getCurrentRoomFloor(), 2, enemyToBulletMediator);
-		//enemyManager.addBoss(mapManager.getCurrentRoomFloor(), 1, enemyToBulletMediator);
 		mapManager.changeState(new Random().nextInt(2)+2);
 		
 		
 		/* avvio della soundtrack */
 		try {
-			soundtrack = new GameSound("gameAssets/sounds/cloth_3.wav");
+			soundtrack = new GameSound("gameAssets/sounds/undertale_ost.wav");
 			soundtrack.startSound();
 		} catch (UnsupportedAudioFileException e) {
 			e.printStackTrace();
@@ -169,8 +170,11 @@ public class GamePanel extends JPanel implements ActionListener, Runnable{
         	else if(gameState == 2) /*  SCONFITTA  	*/
         		g.drawString("Sei Stato Sconfitto", camX+GameSettings.getInstance().getWRes()/2-g.getFontMetrics().stringWidth("Sei Stato Sconfitto")/2, camY+GameSettings.getInstance().getHRes()/3);
         	else {					/*   VITTORIA 	*/
+        		
         		g.drawString("Hai Vinto", camX+GameSettings.getInstance().getWRes()/2-g.getFontMetrics().stringWidth("Sei Stato Sconfitto")/2, camY+GameSettings.getInstance().getHRes()/3);
-        		/* mostra qui i tempi */
+        		String s = " minuti: " + chronometer.getTime().get("minutes").toString() + " secondi: " + chronometer.getTime().get("seconds").toString();
+        		g.drawString(s, camX+GameSettings.getInstance().getWRes()/2-g.getFontMetrics().stringWidth(s)/2, camY+GameSettings.getInstance().getHRes()/3+200);
+        		
         	}
         	
         	g.drawString("Press ESC to Menu", camX+GameSettings.getInstance().getWRes()/2-g.getFontMetrics().stringWidth("Press ESC to Menu")/2, camY+GameSettings.getInstance().getHRes()/2);
@@ -198,19 +202,26 @@ public class GamePanel extends JPanel implements ActionListener, Runnable{
 				{
 					mapManager.getCurrentRoom().setVisited(true);
 					/* se la stanza terminata è l'ultima */
-					if(mapManager.lastRoom()) gameState = 3;
+					if(mapManager.lastRoom()) { gameState = 3; chronometer.updatePause();}
 				}
 				else if(!mapManager.lastRoom()) {
 					
-					int n = (bot != null)? bot.getEnemiesNumber() : 3;
+					int n = (bot != null)? bot.getEnemiesNumber() : 0;
+					if(n == 0) n = 3;
 					enemyManager.addEnemies(mapManager.getCurrentRoomFloor(), n, enemyToBulletMediator);
-					mapManager.changeState( (bot != null)? bot.getState()+2 : new Random().nextInt(2)+2 );
+					
+					int waterState = (bot != null)? bot.getState()+2 : 0;
+					if(waterState == 0) waterState = new Random().nextInt(2)+2;
+					mapManager.changeState( waterState );
 					
 				}
 				else {
 					
 					enemyManager.addBoss(mapManager.getCurrentRoomFloor(), 1, enemyToBulletMediator);
-					mapManager.changeState( (bot != null)? bot.getState()+2 : new Random().nextInt(2)+2 );
+					
+					int waterState = (bot != null)? bot.getState()+2 : 0;
+					if(waterState == 0) waterState = new Random().nextInt(2)+2;
+					mapManager.changeState( waterState );
 				}
 				
 			}
@@ -251,10 +262,13 @@ public class GamePanel extends JPanel implements ActionListener, Runnable{
 					
 					hud.update(camX, camY, player.getHealth());
 					
+					chronometer.updateTime();
+					
 				}
 				
 				repaint();
 			}
+			
 		}
 		
 	}
@@ -295,6 +309,7 @@ public class GamePanel extends JPanel implements ActionListener, Runnable{
 					
 					gameState = 1;
 					soundtrack.pauseSound();
+					chronometer.updatePause();
 					
 				}
 			}

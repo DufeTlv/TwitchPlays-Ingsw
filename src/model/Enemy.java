@@ -11,11 +11,6 @@ public abstract class Enemy extends AnimatedObject{
 	protected int state;
 	protected int health;
 	
-	protected double directions[];
-	protected double position[];
-	protected double length;
-	protected double velocity;
-	
 	protected Mediator bulletMediator; 
 
 	public Enemy(int _x, int _y, String filePath, int nFrames, Mediator m) {
@@ -29,16 +24,6 @@ public abstract class Enemy extends AnimatedObject{
 		healthBar = new Rectangle(_x+((width/17)*4), _y-((height/20)*4), ((width/17)*9), ((height/20)*3));
 		
 		state = 0;
-		
-		position = new double[2];
-		position[0] = getCentralX();
-		position[1] = getCentralY();
-		
-		directions = new double[2];		
-		directions[0] = -1;
-		directions[1] = -1; 
-		
-		velocity = 1.50;
 		
 		// farà da mediatore tra l'enemy e il bulletManager
 		// permettendo all'enemy di comunicargli di rilasciare un proiettile 

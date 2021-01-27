@@ -24,6 +24,11 @@ public class GameSound {
 
     public void startSound() {
         if (!clipaudio.isActive() && clipaudio != null) {
+            FloatControl control = (FloatControl) clipaudio.getControl(FloatControl.Type.MASTER_GAIN);
+            float range = control.getMinimum();
+            float result = range * (1 - 0/ 100.0f);
+            control.setValue(result);
+        	
             clipaudio.start();
         }
     }
