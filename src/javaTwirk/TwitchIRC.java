@@ -79,7 +79,7 @@ public class TwitchIRC extends ListenerAdapter implements Runnable
         else if(event.getMessage().contentEquals("#addenemies"))
         	enemiesNumber++;
 
-        System.out.println("Numero nemici: " + enemiesNumber);
+        //System.out.println("Numero nemici: " + enemiesNumber);
 
     }
 

@@ -58,7 +58,7 @@ public class MenuPanel extends JPanel implements ActionListener, Runnable{
 		// variabili/oggetti di gioco
 		menuScreen = new Rectangle(0,0, GameSettings.getInstance().getWRes(), GameSettings.getInstance().getHRes());
 		
-		titleScreen = new Object(GameSettings.getInstance().getWRes()/3 , 			100 								 , 	 "gameAssets/sprites/TitleScreen.png");
+		titleScreen = new Object(GameSettings.getInstance().getWRes()/2 , 			100 								 , 	 "gameAssets/sprites/TitleScreen.png");
 		startC 		= new Object(GameSettings.getInstance().getWRes()/2 , GameSettings.getInstance().getHRes()/2		 , 	 "gameAssets/sprites/NewGameText.png"); 
 		online		= new Object(GameSettings.getInstance().getWRes()/2 , startC.y  +startC.height 		+ startC.height/2, 	 "gameAssets/sprites/OnlineText.png"); 
 		settings	= new Object(GameSettings.getInstance().getWRes()/2 , online.y  +online.height 		+ online.height/2, 	 "gameAssets/sprites/SettingsText.png"); 
