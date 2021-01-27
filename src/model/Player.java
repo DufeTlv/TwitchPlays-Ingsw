@@ -94,15 +94,22 @@ public class Player extends AnimatedObject{
 		feet.x = x+((width/17)*4);
 		feet.y = y+((height/20)*18);
 		
-		if(currentTile == null || !currentTile.contains((int)feet.getCenterX(), (int)feet.getCenterY())) {
-			currentTile = currentRoom.getCurrentTile((int)feet.getCenterX(), (int)feet.getCenterY());
+		/* se sono fuori dalla stanza (quindi sono sui ponti) la velocità rimane quella base */
+		if(currentRoom.getFloor().contains(feet)) {
+			/* controllo sulla tile su cui si trova il player */
+			if(currentTile == null || !currentTile.contains((int)feet.getCenterX(), (int)feet.getCenterY())) {
+				currentTile = currentRoom.getCurrentTile((int)feet.getCenterX(), (int)feet.getCenterY());
+				
+				if(currentTile.currentAnimation < 2)
+					speed[0] = speed[1] = 2*2;
+				else if(currentTile.currentAnimation == 2 )
+					speed[0] = speed[1] = 0.5*2;
+				else if(currentTile.currentAnimation == 3 )
+					speed[0] = speed[1] = 4*2;
+			}
 			
-			if(currentTile.currentAnimation < 2)
-				speed[0] = speed[1] = 2*2;
-			else if(currentTile.currentAnimation == 2 )
-				speed[0] = speed[1] = 0.5*2;
-			else if(currentTile.currentAnimation == 3 )
-				speed[0] = speed[1] = 4*2;
+		}else {
+			speed[0] = speed[1] = 2*2;
 		}
 	}
 	

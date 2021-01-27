@@ -132,7 +132,7 @@ public class GamePanel extends JPanel implements ActionListener, Runnable{
 		
 		
 		/* avvio della soundtrack */
-		try {
+		/*try {
 			soundtrack = new GameSound("gameAssets/sounds/undertale_ost.wav");
 			soundtrack.startSound();
 		} catch (UnsupportedAudioFileException e) {
@@ -141,7 +141,7 @@ public class GamePanel extends JPanel implements ActionListener, Runnable{
 			e.printStackTrace();
 		} catch (LineUnavailableException e) {
 			e.printStackTrace();
-		}
+		}*/
 		
 		/* timer del paint component (non serve più) */
 		//timer = new Timer(fpsDELAY, this);
@@ -172,10 +172,14 @@ public class GamePanel extends JPanel implements ActionListener, Runnable{
         	g.setColor(Color.WHITE);
         	
         	if(gameState == 1) { 	   /*	  PAUSA		*/
+        		
         		g.drawString("Press P to Resume", camX+GameSettings.getInstance().getWRes()/2-g.getFontMetrics().stringWidth("Press P to Resume")/2, camY+GameSettings.getInstance().getHRes()/3);
+        	
         	}else if(gameState == 2) { /*  SCONFITTA  	*/
+        		
         		g.drawString("Sei Stato Sconfitto", camX+GameSettings.getInstance().getWRes()/2-g.getFontMetrics().stringWidth("Sei Stato Sconfitto")/2, camY+GameSettings.getInstance().getHRes()/3);
         		g.drawString("Press R to Retry", camX+GameSettings.getInstance().getWRes()/2-g.getFontMetrics().stringWidth("Press R to Retry")/2, camY+GameSettings.getInstance().getHRes()/2+50);
+        	
         	}else {					   /*   VITTORIA 	*/
         		
         		g.drawString("Hai Vinto", camX+GameSettings.getInstance().getWRes()/2-g.getFontMetrics().stringWidth("Sei Stato Sconfitto")/2, camY+GameSettings.getInstance().getHRes()/3);
@@ -311,23 +315,23 @@ public class GamePanel extends JPanel implements ActionListener, Runnable{
 				if( gameState == 1 ) {
 					gameState = 0;
 					
-					try {soundtrack.resumeSound();} 
+					/*try {soundtrack.resumeSound();} 
 						catch (UnsupportedAudioFileException e1) {e1.printStackTrace();} 
 						catch (IOException e1) 					 {e1.printStackTrace();} 
-						catch (LineUnavailableException e1) 	 {e1.printStackTrace();}
+						catch (LineUnavailableException e1) 	 {e1.printStackTrace();}*/
 					
 				}
 				else if( gameState == 0 ) {
 					
 					gameState = 1;
-					soundtrack.pauseSound();
+					//soundtrack.pauseSound();
 					chronometer.updatePause();
 					
 				}
 			}
 			
 			if(e.getKeyCode() == KeyEvent.VK_R && gameState == 2) {
-				soundtrack.stopSound();
+				//soundtrack.stopSound();
 				isRunning = false;
 				
 				if(bot != null) {
@@ -339,7 +343,7 @@ public class GamePanel extends JPanel implements ActionListener, Runnable{
 			}
 			
 			if(e.getKeyCode() == KeyEvent.VK_ESCAPE && gameState != 0) {
-				soundtrack.stopSound();
+				//soundtrack.stopSound();
 				if(bot != null) bot.closeBotX();
 				isRunning = false;
 				controller.showMenu();
